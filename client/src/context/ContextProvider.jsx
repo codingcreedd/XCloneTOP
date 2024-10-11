@@ -5,11 +5,9 @@ export const Context = createContext(null);
 const ContextProvider = ({children}) => {
 
     const [authState, setAuthState] = useState(false);
-    const [signUp, setSignUp] = useState(false);
 
     const states = {
         authState, setAuthState,
-        signUp, setSignUp
     }
 
   return (

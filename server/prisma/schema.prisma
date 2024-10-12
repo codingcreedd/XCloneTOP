@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int     @id @default(autoincrement())
+  name       String  @db.VarChar(155)
+  username   String  @unique
+  email      String  @unique
+  password   String
+  bio        String? @default("Welcome to my Blip account everyone")
+  followedBy User[]  @relation("UserFollows")
+  following  User[]  @relation("UserFollows")
+  pfpUrl     String?
+  posts      Post[]
+  bookmarked Post[]  @relation("Bookmarked Posts")
+  liked      Post[]  @relation("Liked Posts")
+  reposted   Post[]  @relation("Reposted")
+
+  messages Message[]
+  chats    Chat[]
+
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Post {
+  id            Int      @id @default(autoincrement())
+  description   String
+  userId        Int
+  isReply       Boolean? @default(false)
+  user          User     @relation(fields: [userId], references: [id])
+  bookmarkUsers User[]   @relation("Bookmarked Posts")
+  likedUsers    User[]   @relation("Liked Posts")
+  repostedUsers User[]   @relation("Reposted")
+
+  parentId   Int?
+  parentPost Post? @relation("RepliesTo", fields: [parentId], references: [id])
+
+  replies Post[] @relation("RepliesTo")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  description String
+  imageUrl    String?
+  User        User?    @relation(fields: [userId], references: [id])
+  userId      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Chat        Chat?    @relation(fields: [chatId], references: [id])
+  chatId      Int?
+}
+
+model Chat {
+  id       Int       @id @default(autoincrement())
+  messages Message[]
+  users    User[]
+}

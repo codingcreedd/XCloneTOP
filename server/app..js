@@ -16,6 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 //Routes
+const user = require('./routes/user');
+
+app.use('/user', user);
 
 const port = process.env.PORT;
 app.listen(port, () => {

@@ -5,11 +5,27 @@ const verify = require('../config/verify').verify;
 const bcrypt = require('bcrypt');
 const generateToken = require('../Utils/jwtToken');
 
-router.get('/protected', verify, (req, res) => {
+router.get('/protected', verify, async (req, res) => {
     try {
-        res.status(200).json({
+        const userId = req.user.id;
+
+        const user = await prisma.user.findUnique({
+            where: {id: userId},
+            select: {name: true, username: true, pfpUrl: true, id: true}
+        });
+        
+
+        if(!user && userId) {
+            return res.status(404).json({
+                authenticated: false,
+                message: 'Could not find user',
+                status: 'failure'
+            })
+        }
+
+        return res.status(200).json({
             authenticated: true,
-            user: req.user
+            user: user
         })
     } catch(err) {
         console.log(err);   
@@ -118,7 +134,8 @@ router.get('/', verify, async (req, res) => {
 
         return res.status(200).json({
             message: 'Retreived user information successfuly',
-            status: 'success'
+            status: 'success',
+            userInfo: userInfo
         });
 
     } catch(err) {
@@ -287,6 +304,55 @@ router.post('/follow', verify, async (req, res) => {
     }
 });
 
+//remove follower
+router.put('/unfollow', verify, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const {followingId} = req.body;
+
+        const unfollowUser = await prisma.user.update({
+            where: {id: userId},
+            data: {
+                following: {
+                    disconnect: {
+                        id: followingId
+                    }
+                }
+            }
+        });
+
+        if(!unfollowUser) {
+            return res.status(400).json({
+                message: 'Could not unfollow user',
+                status: 'failure'
+            })
+        }
+
+        const removeFollower = await prisma.user.update({
+            where: {id: followingId},
+            data: {
+                followedBy: {
+                    disconnect: {
+                        id: userId
+                    }
+                }
+            }
+        });
+
+        if(!removeFollower) {
+            return res.status(400).json({
+                message: 'Process failed',
+                status: 'failure'
+            })
+        }
+
+        return res.status(201).json({message: 'Unfollowed user successfuly', status: 'success'})
+
+    } catch(err) {
+        console.error(err);
+    }
+})
+
 //like a post
 router.post('/like-post', verify, async (req, res) => {
     try {
@@ -380,7 +446,63 @@ router.post('/repost', verify, async (req, res) => {
     }
 });
 
+//get users who registered the latest
+router.get('/latest', verify, async (req, res) => {
+    try {
+        const latestUsers = await prisma.user.findMany({
+            orderBy: {
+                createdAt: 'desc'
+            },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                pfpUrl: true
+            },
+            take: 10
+        });
 
+        if(!latestUsers)
+            return res.status(400).json({message: 'Could not retrieve latest users', status: 'failure'})
+        
+        return res.status(200).json({message: 'Retreived latest users successfuly', status: 'success', latestUsers: latestUsers})
+
+    } catch(err) {
+        console.error(err);
+    }
+})
+
+//get most followed users
+router.get('/mostfollowed', verify, async (req, res) => {
+    try {
+        const mostFollowed = await prisma.user.findMany({
+            take: 5,
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                _count: {
+                    select: {
+                        followedBy: true
+                    }
+                }
+            },
+            orderBy: {
+                _count: {
+                    followedBy: 'desc'
+                }
+            }
+        });
+
+        if(!mostFollowed)
+            return res.status(400).json({message: 'Could not retrieve most followed users', status: 'failure'})
+        
+        return res.status(200).json({message: 'Retreived most followed users successfuly', status: 'success', mostFollowed: mostFollowed})
+
+    } catch(err) {
+        console.error(err);
+    }
+})
 
 
 module.exports = router;

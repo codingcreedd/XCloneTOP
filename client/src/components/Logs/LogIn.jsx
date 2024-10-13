@@ -22,7 +22,6 @@ const LogIn = () => {
                 setLoading(false);
                 if(response.data.message === 'Login successful') {
                     localStorage.setItem("token", response.data.token);
-                    setUserId(response.data.user.id);
                     navigate('/', {replace: true})
                 }
             })

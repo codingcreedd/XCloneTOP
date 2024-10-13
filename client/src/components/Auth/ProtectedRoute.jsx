@@ -22,6 +22,7 @@ const ProtectedRoute = ({ children }) => {
                     setUser(response.data.user)
                     setAuthState(response.data.authenticated);
                     setUserId(response.data.user.id);
+                    console.log(response.data.user.id + ' ' + response.data.authenticated)
                 })
             } catch (error) {
                 console.error('Error during authentication', error);

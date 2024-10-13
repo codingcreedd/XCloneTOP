@@ -1,14 +1,50 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
+import posts_api from '../../apis/post'
+import { Context } from '../../context/ContextProvider';
+import Loader from '../PopUps/Loader';
 
 const CreatePost = () => {
+
+  const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+  const {setForYou, setFollowingPosts, forYou, followingPosts} = useContext(Context);
+  
+  const token = localStorage.getItem("token");
+
+  const handleCreatePost = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try { 
+        await posts_api.post('/create', {
+          description, isReply: false, parentId: null
+        }, {headers: {Authorization: `Bearer ${token}`}})
+        .then(response => {
+          setLoading(false);
+          if(response.status === 201) {
+            setDescription('');
+            setForYou([...forYou, response.data.post]);
+            setFollowingPosts([...followingPosts, response.data.post]);
+          }
+          console.log(response.data.post);
+        })
+    } catch(err) {
+      console.error(err);
+    }
+  }
+
   return (
-    <form className="bg-white bg-opacity-5 rounded-lg p-4 mb-6">
+    <form className="bg-white relative bg-opacity-5 rounded-lg p-4 mb-6" onSubmit={handleCreatePost}>
+      {
+        loading && <Loader />
+      }
               <div className="flex items-start space-x-4">
                 <img src="/placeholder.svg?height=40&width=40" alt="Your Profile" className="w-10 h-10 rounded-full" />
                 <div className="flex-grow">
                   <textarea
                     className="w-full bg-transparent border-b border-white border-opacity-20 resize-none focus:outline-none focus:border-opacity-50 placeholder-gray-500"
                     placeholder="What's happening?"
+                    value={description}
+                    onChange={(e) => {setDescription(e.target.value)}}
                     rows={3}
                   ></textarea>
                   <div className="flex justify-between items-center mt-2">

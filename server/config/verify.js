@@ -9,7 +9,7 @@ const verify = (req, res, next) => {
     }
 
     const [bearer, token] = authHeader.split(" ");
-    console.log('Bearer: ' + bearer)
+
     if(bearer !== "Bearer" || !token) {
         console.log('Invalid token')
         return res.status(401).json({message: "Invalid token format"})

@@ -111,6 +111,7 @@ router.get('/following-posts', verify, async (req, res) => {
             },
             include: {
                 replies: true,
+                user: true,
                 likedUsers: {
                     select: {
                         pfpUrl: true,

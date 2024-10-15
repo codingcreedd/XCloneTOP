@@ -255,7 +255,7 @@ router.put('/update/username', verify, async (req, res) => {
     }
 });
 
-//add following
+//add following 
 router.post('/follow', verify, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -488,7 +488,10 @@ router.get('/latest', verify, async (req, res) => {
                 id: true,
                 name: true,
                 username: true,
-                pfpUrl: true
+                pfpUrl: true,
+                followedBy: {
+                    select: {id: true}
+                }
             },
             take: 10
         });
@@ -516,6 +519,9 @@ router.get('/mostfollowed', verify, async (req, res) => {
                     select: {
                         followedBy: true
                     }
+                },
+                followedBy: {
+                    select: {id: true}
                 }
             },
             orderBy: {
@@ -556,6 +562,11 @@ router.get('/search', verify, async (req, res) => {
                         }
                     }
                 ]
+            },
+            include: {
+                followedBy: {
+                    select: {id: true}
+                }
             }
         });
 

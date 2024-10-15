@@ -19,6 +19,7 @@ const LatestUsers = () => {
                 }
             }).then(response => {
                 setLoading(false);
+                console.log(response.data.latestUsers)
                 if(response.status === 200) {
                     setLatestUsers(response.data.latestUsers);
                 }
@@ -28,6 +29,9 @@ const LatestUsers = () => {
         fetchLatest();
     }, [])
     
+    if(loading) {
+      return <Loader />
+    }
 
   return (
     <div className="relative hidden lg:block lg:w-[300px]">

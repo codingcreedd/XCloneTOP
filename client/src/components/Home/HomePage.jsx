@@ -34,6 +34,7 @@ export default function HomePage() {
           }
         }).then(response => {
           setLoading(false);
+          console.log(response.data)
           if(response.status === 200){
             setFollowingPosts([...followingPosts, ...response.data.posts]);
           }
@@ -60,13 +61,13 @@ export default function HomePage() {
             {/* Tabs */}
             <div className="flex mb-6 bg-white bg-opacity-5 rounded-lg">
               <button
-                onClick={() => setActiveTab('for-you')}
+                onClick={() => {setActiveTab('for-you'); setFollowingPosts([])}}
                 className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'for-you' ? 'bg-blue-500 text-white' : 'hover:bg-white hover:bg-opacity-10'}`}
               >
                 For You
               </button>
               <button
-                onClick={() => {setActiveTab('following'); fetchFollowing();}}
+                onClick={() => {setActiveTab('following'); setForYou([]); fetchFollowing();}}
                 className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'following' ? 'bg-blue-500 text-white' : 'hover:bg-white hover:bg-opacity-10'}`}
               >
                 Following

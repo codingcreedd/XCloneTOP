@@ -354,7 +354,7 @@ router.put('/unfollow', verify, async (req, res) => {
 })
 
 //like a post
-router.post('/like-post', verify, async (req, res) => {
+router.put('/like-post', verify, async (req, res) => {
     try {
         const userId = req.user.id;
         const {postId} = req.body;
@@ -384,8 +384,8 @@ router.post('/like-post', verify, async (req, res) => {
     }
 });
 
-//unlike a post
-router.post('/unlike-post', verify, async (req, res) => {
+//remove like
+router.put('/unlike-post', verify, async (req, res) => {
     try {
         const userId = req.user.id;
         const {postId} = req.body;
@@ -416,7 +416,7 @@ router.post('/unlike-post', verify, async (req, res) => {
 });
 
 //bookmark a post
-router.post('/bookmark-post', verify, async (req, res) => {
+router.put('/bookmark-post', verify, async (req, res) => {
     try {
         const userId = req.user.id;
         const {postId} = req.body;
@@ -446,8 +446,39 @@ router.post('/bookmark-post', verify, async (req, res) => {
     }
 });
 
+//remove bookmark
+router.put('/remove-bookmark', verify, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const {postId} = req.body;
+
+        const removeBookmark = await prisma.user.update({
+            where: {id: userId},
+            data: {
+                bookmarked: {
+                    disconnect: {
+                        id: postId
+                    }
+                }
+            }
+        });
+
+        if(!removeBookmark) {
+            return res.status(400).json({
+                message: 'Could not remove bookmark',
+                status: 'failure'
+            })
+        }
+
+        return res.status(201).json({message: 'Removed bookmark successfuly', status: 'success'})
+
+    } catch(err) {
+        console.error(err);
+    }
+});
+
 //repost
-router.post('/repost', verify, async (req, res) => {
+router.put('/repost', verify, async (req, res) => {
     try {
         const userId = req.user.id;
         const {postId} = req.body;

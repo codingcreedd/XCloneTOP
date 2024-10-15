@@ -8,6 +8,8 @@ import ContextProvider from './context/ContextProvider.jsx'
 import ProtectedRoute from './components/Auth/ProtectedRoute.jsx'
 import HomePage from './components/Home/HomePage.jsx'
 import ExplorePage from './components/Routes/ExplorePage.jsx'
+import BookmarksPage from './components/Routes/BookmarksPage.jsx'
+import Error from './components/Routes/Error.jsx'
 
 const router = createBrowserRouter([
   {
@@ -25,8 +27,13 @@ const router = createBrowserRouter([
       {
         path: 'explore',
         element: <ExplorePage />
+      },
+      {
+        path: 'bookmarks',
+        element: <BookmarksPage />
       }
-    ]
+    ],
+    errorElement: <Error />
   },
   {
     path: '/auth/:logType',

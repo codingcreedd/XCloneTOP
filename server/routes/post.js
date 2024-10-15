@@ -227,7 +227,7 @@ router.get('/:user_id/bookmarks', verify, async (req, res) => {
         return res.status(200).json({
             message: 'Retreived bookmarks successuly',
             status: 'success',
-            posts: posts
+            bookmarks
         });
     } catch(err) {
         console.error(err);

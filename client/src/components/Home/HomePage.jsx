@@ -35,7 +35,7 @@ export default function HomePage() {
         }).then(response => {
           setLoading(false);
           if(response.status === 200){
-            setFollowingPosts([...followingPosts, response.data.posts]);
+            setFollowingPosts([...followingPosts, ...response.data.posts]);
           }
         })
       } catch(err) {
@@ -78,7 +78,7 @@ export default function HomePage() {
 
             {/* Posts */}
             {
-              activeTab === 'for-you' ? (
+              activeTab === 'for-you' && forYou.length > 0 ? (
                 <div className="space-y-6">
                   {forYou.map((post, index) => (
                     <div key={index}>
@@ -86,7 +86,7 @@ export default function HomePage() {
                     </div>
                   ))}
                 </div>
-              ) : (
+              ) : activeTab === 'following' && followingPosts.length > 0 ? (
                 <div className="space-y-6">
                   {followingPosts.map((post, index) => (
                     <div key={index}>
@@ -94,6 +94,8 @@ export default function HomePage() {
                     </div>
                   ))}
                 </div>
+              ) : (
+                <p>No posts to see</p>
               )
             }
           </div>

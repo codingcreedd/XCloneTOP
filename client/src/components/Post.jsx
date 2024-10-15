@@ -18,9 +18,9 @@ const Post = ({post}) => {
             <img src="/placeholder.svg?height=40&width=40" alt="User Profile" className="w-10 h-10 rounded-full" />
             <div className="flex-grow">
                 <div className="flex items-center space-x-2">
-                    <span className="font-semibold">{post.user.name}</span>
-                    <span className="text-gray-500 text-sm hover:underline cursor-pointer transition-all">@{post.user.username}</span>
-                    <span className="text-gray-500 text-sm">· 2h</span>
+                    <span className="font-semibold">{post?.user.name}</span>
+                    <span className="text-gray-500 text-sm hover:underline cursor-pointer transition-all">@{post?.user.username}</span>
+                    <span className="text-gray-500 text-sm">· {post?.createdAt}</span>
                 </div>
                 <p className="mt-2 break-words whitespace-normal max-h-40 overflow-hidden">{post.description}</p>
                     {post % 2 === 0 && (

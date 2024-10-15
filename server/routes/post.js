@@ -319,6 +319,33 @@ router.get('/:user_id/likes', verify, async (req, res) => {
     }
 });
 
+//search for post
+router.get('/search', verify, async (req, res) => {
+    try {
+        const {searchedPost} = req.query;
+        const posts = await prisma.post.findMany({
+            where: {
+                description: {
+                    contains: searchedPost
+                }
+            },
+            select: {
+                id: true, description: true, user: true, replies: true, createdAt: true,
+                _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
+                parentPost: true
+            }
+        });
+
+        if(!posts)
+            return res.status(400).json({message: 'Could not retrieve posts', status: 'failure'})
+        
+        return res.status(200).json({message: 'Retreived posts successfuly', status: 'success', posts: posts})
+
+    } catch(err) {
+        console.error(err);
+    }
+});
+
 
 
 module.exports = router;

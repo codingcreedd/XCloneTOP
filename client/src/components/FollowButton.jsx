@@ -1,8 +1,11 @@
 import React from 'react'
 
-const FollowButton = ({userId}) => {
+const FollowButton = ({className, userId}) => {
+
+  const classes = `${className || 'bg-white text-black px-3 py-1 rounded-full text-sm font-medium hover:bg-opacity-90'}`
+
   return (
-    <button className="bg-white text-black px-3 py-1 rounded-full text-sm font-medium hover:bg-opacity-90">
+    <button className={classes}>
         Follow
     </button>
   )

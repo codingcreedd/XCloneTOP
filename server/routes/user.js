@@ -384,6 +384,37 @@ router.post('/like-post', verify, async (req, res) => {
     }
 });
 
+//unlike a post
+router.post('/unlike-post', verify, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const {postId} = req.body;
+
+        const unlikePost = await prisma.user.update({
+            where: {id: userId},
+            data: {
+                liked: {
+                    disconnect: {
+                        id: postId
+                    }
+                }
+            }
+        });
+
+        if(!unlikePost) {
+            return res.status(400).json({
+                message: 'Could not unlike post',
+                status: 'failure'
+            })
+        }
+
+        return res.status(201).json({message: 'Unliked Post successfuly', status: 'success'})
+
+    } catch(err) {
+        console.error(err);
+    }
+});
+
 //bookmark a post
 router.post('/bookmark-post', verify, async (req, res) => {
     try {
@@ -504,5 +535,38 @@ router.get('/mostfollowed', verify, async (req, res) => {
     }
 })
 
+//serach for users
+router.get('/search', verify, async (req, res) => {
+    try {
+        
+        const {searchedUser} = req.query;
+        const users = await prisma.user.findMany({
+            where: {
+                OR: [
+                    {
+                        username: {
+                            contains: searchedUser,
+                            mode: 'insensitive'
+                        }
+                    },
+                    {
+                        name: {
+                            contains: searchedUser,
+                            mode: 'insensitive'
+                        }
+                    }
+                ]
+            }
+        });
+
+        if(!users)
+            return res.status(400).json({message: 'Could not retrieve users', status: 'failure'})
+        
+        return res.status(200).json({message: 'Retreived users successfuly', status: 'success', users: users})
+
+    } catch(err) {
+        console.error(err);
+    }
+});
 
 module.exports = router;

@@ -7,6 +7,7 @@ import Logs from './components/Logs/Logs.jsx'
 import ContextProvider from './context/ContextProvider.jsx'
 import ProtectedRoute from './components/Auth/ProtectedRoute.jsx'
 import HomePage from './components/Home/HomePage.jsx'
+import ExplorePage from './components/Routes/ExplorePage.jsx'
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: '',
         element: <HomePage />
+      },
+      {
+        path: 'explore',
+        element: <ExplorePage />
       }
     ]
   },

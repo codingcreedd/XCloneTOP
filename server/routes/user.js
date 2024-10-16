@@ -112,16 +112,16 @@ router.post('/login', async (req, res) => {
 });
 
 //get user information (for profile)
-router.get('/', verify, async (req, res) => {
+router.get('/:username/profile', verify, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const {username} = req.params;
 
         const userInfo = await prisma.user.findUnique({
-            where: {id: userId},
+            where: {username},
             select: {
-                name: true, username: true, email: true, bio: true, pfpUrl: true,
+                id:true, name: true, username: true, email: true, bio: true, pfpUrl: true,
                 followedBy: true, following: true, createdAt: true,
-                lastLogin: true, updatedAt: true
+                lastLogin: true, updatedAt: true, posts: true
             }
         });
 

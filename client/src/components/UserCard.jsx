@@ -4,6 +4,7 @@ import { Context } from '../context/ContextProvider';
 import MessageButton from './MessageButton';
 import users_api from '../apis/user';
 import Loader from './PopUps/Loader';
+import { Link } from 'react-router-dom';
 
 const UserCard = ({ user, onExplore }) => {
     const { userId } = useContext(Context);
@@ -68,7 +69,7 @@ const UserCard = ({ user, onExplore }) => {
                 />
                 <div>
                     <div className="font-semibold">{user?.name}</div>
-                    <div className="text-gray-500 text-sm">@{user?.username}</div>
+                    <Link to={`/${user?.username}/profile`} className="text-gray-500 text-sm hover:underline transition-all">@{user?.username}</Link>
                 </div>
             </div>
             <div className="flex gap-5 items-center">

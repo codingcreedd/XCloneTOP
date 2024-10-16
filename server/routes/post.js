@@ -159,14 +159,143 @@ router.get('/following-posts', verify, async (req, res) => {
     }
 });
 
-//get user posts
-router.get('/:user_id/posts', verify, async (req, res) => {
+router.get('/for-you', verify, async (req, res) => {
     try {
-        const {user_id} = req.params;
+        const userId = req.user.id;
+
+        const userFollowingCOunt = await prisma.user.findUnique({
+            where: {id: userId},
+            select: {_count: {select: {following: true}}}
+        })
+
+        if(userFollowingCOunt._count.following === 0) {
+            const forYou = await prisma.post.findMany({
+                take: 100,
+                include: {
+                    user: {
+                        select: {
+                            username: true,
+                            name: true
+                        }
+                    },
+                    _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
+                }
+            });
+
+            if(!forYou){
+                return res.status(400).json({message: 'Couldnt retreive posts', status: 'failure'})
+            } 
+
+            return res.status(200).json({
+                message: 'Retreived posts successfully',
+                status: 'success',
+                posts: forYou
+            })
+
+        } else {
+            const following = await prisma.user.findMany({
+                where: {id: userId},
+                select: {
+                    following: {
+                        select: {
+                            liked: {
+                                orderBy: {
+                                    likedUsers: {_count: 'desc'}
+                                },
+                                include: {
+                                    user: {
+                                        select: {
+                                            username: true,
+                                            name: true
+                                        }
+                                    },
+                                    _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
+                                },
+                                take: 3
+                            },
+                            bookmarked: {
+                                orderBy: {
+                                    bookmarkUsers: {_count: 'desc'}
+                                },include: {
+                                    user: {
+                                        select: {
+                                            username: true,
+                                            name: true
+                                        }
+                                    },
+                                    _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
+                                },
+                                take: 3
+                            },
+                            reposted: {
+                                orderBy: {
+                                    repostedUsers: {_count: 'desc'}
+                                },include: {
+                                    user: {
+                                        select: {
+                                            username: true,
+                                            name: true
+                                        }
+                                    },
+                                    _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
+                                },
+                                take: 3
+                            }
+                        }
+                    }
+                }
+            });
+    
+            const followings = following[0].following;
+    
+            if(followings) {
+                let posts = [];
+                followings.forEach(following => {
+                    let allPosts = [
+                        ...following.liked,
+                        ...following.bookmarked,
+                        ...following.reposted
+                    ]
+    
+                    allPosts.forEach(post => {
+                        const exists = posts.some(post_ => post_.id === post.id);
+                        if(!exists)
+                            posts.push(post);
+                    });
+                })
+    
+                return res.status(200).json({
+                    message: 'Retreived posts successfuly',
+                    status: 'success',
+                    posts
+                })
+            } 
+    
+            return res.status(400).json({
+                    message: 'Could not retreive posts successfuly',
+                    status: 'failure',
+            })
+        }
+
+    } catch(err) {
+        console.error(err);
+    }
+})
+
+//get user posts
+router.get('/:username/posts', verify, async (req, res) => {
+    try {
+        const {username} = req.params;
+
+        const user = await prisma.user.findUnique({
+            where: {username},
+            select: {id: true}
+        });
+
         const posts = await prisma.post.findMany({
             where: {
                 AND: [
-                    {userId: Number(user_id)},
+                    {userId: user.id},
                     {isReply: false},
                 ]
             },
@@ -189,7 +318,7 @@ router.get('/:user_id/posts', verify, async (req, res) => {
         return res.status(200).json({
             message: 'Retreived posts successuly',
             status: 'success',
-            posts: posts
+            posts
         });
     } catch(err) {
         console.error(err);
@@ -288,7 +417,7 @@ router.get('/:user_id/likes', verify, async (req, res) => {
             where: {
                 likedUsers: {
                     some: {
-                        userId: Number(user_id)
+                        id: Number(user_id)
                     }
                 }
             },
@@ -309,7 +438,7 @@ router.get('/:user_id/likes', verify, async (req, res) => {
         return res.status(200).json({
             message: 'Retreived liked posts successuly',
             status: 'success',
-            replies: likes
+            likes
         });
     } catch(err) {
         console.error(err);

@@ -10,6 +10,7 @@ import HomePage from './components/Home/HomePage.jsx'
 import ExplorePage from './components/Routes/ExplorePage.jsx'
 import BookmarksPage from './components/Routes/BookmarksPage.jsx'
 import Error from './components/Routes/Error.jsx'
+import UserProfile from './components/Routes/UserProfile.jsx'
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: 'bookmarks',
         element: <BookmarksPage />
+      },
+      {
+        path: '/:username/profile',
+        element: <UserProfile />
       }
     ],
     errorElement: <Error />

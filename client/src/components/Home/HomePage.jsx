@@ -13,20 +13,38 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState('for-you');
   const [loading, setLoading] = useState(false);
 
+  const [forYouClicked, setForYouClicked] = useState(false);
+
   const token = localStorage.getItem("token");
   
   const {forYou, followingPosts, setForYou, setFollowingPosts} = useContext(Context);
 
-  // useEffect(() => { fetch for you posts on page load
-  //   fetchForYou
-  // }, [])
+  useEffect(() => { 
+    fetchForYou();
+  }, [forYouClicked])
 
     const fetchForYou = async () => {
-
+      try {
+        setLoading(true);
+        await posts_api.get('/for-you', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }).then(response => {
+          if(response.status === 200){
+            setLoading(false);
+            setForYou(response.data.posts);
+          }
+        })
+      } catch(err) {
+        setLoading(false);
+        console.error(err);
+      }
     }
 
     const fetchFollowing = async () => {
       try {
+        setFollowingPosts([])
         setLoading(true);
         await posts_api.get('/following-posts', {
           headers: {
@@ -36,7 +54,7 @@ export default function HomePage() {
           setLoading(false);
           console.log(response.data)
           if(response.status === 200){
-            setFollowingPosts([...followingPosts, ...response.data.posts]);
+            setFollowingPosts(response.data.posts);
           }
         })
       } catch(err) {
@@ -61,7 +79,7 @@ export default function HomePage() {
             {/* Tabs */}
             <div className="flex mb-6 bg-white bg-opacity-5 rounded-lg">
               <button
-                onClick={() => {setActiveTab('for-you'); setFollowingPosts([])}}
+                onClick={() => {setActiveTab('for-you'); setFollowingPosts([]); setForYouClicked((!forYouClicked))}}
                 className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'for-you' ? 'bg-blue-500 text-white' : 'hover:bg-white hover:bg-opacity-10'}`}
               >
                 For You

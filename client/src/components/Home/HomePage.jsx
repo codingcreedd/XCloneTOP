@@ -2,12 +2,12 @@ import { useContext, useEffect, useState } from 'react'
 import WhoToFollow from './WhoToFollow'
 import Nav from './Nav'
 import CreatePost from './CreatePost'
-import Trending from './Trending'
 import Post from '../Post'
 import LatestUsers from './LatestUsers'
 import { Context } from '../../context/ContextProvider';
 import posts_api from '../../apis/post'
 import Loader from '../PopUps/Loader'
+import MostFollowed from './MostFollowed'
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('for-you');
@@ -71,7 +71,7 @@ export default function HomePage() {
       <main className="pt-20 pb-8 px-40 mx-auto">
         <div className="flex flex-col lg:flex-row lg:space-x-6">
           {/* Left Sidebar */}
-          <Trending />
+          <MostFollowed />
 
           {/* Main Feed */}
           <div className="lg:w-1/2 relative"> 

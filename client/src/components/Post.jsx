@@ -2,14 +2,16 @@ import gsap from 'gsap';
 import { useEffect, useState } from 'react';
 import users_api from '../apis/user';
 import Loader from './PopUps/Loader';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Post = ({post}) => {
+const Post = ({post, postPage}) => {
 
     const token = localStorage.getItem("token");
 
     const [bookmark, setBookmark] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
 
     const formatNumber = (number) => {
         if(number > 999) {
@@ -98,7 +100,7 @@ const Post = ({post}) => {
     }
 
   return (
-    <div key={post.id} className="bg-white bg-opacity-5 cursor-pointer rounded-lg p-4 overflow-hidden whitespace-normal break-words backdrop-filter backdrop-blur-sm">
+    <div onClick={() => {navigate(`/post/${post?.id}`)}} key={post.id} className={`bg-white bg-opacity-5 cursor-pointer ${postPage ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-lg'} p-4 overflow-hidden whitespace-normal break-words backdrop-filter backdrop-blur-sm`}>
         {
             loading && <Loader />
         }
@@ -121,19 +123,19 @@ const Post = ({post}) => {
                         </svg>
                         <span>{formatNumber(post._count.replies)}</span>
                     </button>
-                    <button className="flex items-center space-x-2 repost text-gray-500 hover:text-green-400" onClick={() => {repost()}}>
+                    <button className="flex items-center space-x-2 repost text-gray-500 hover:text-green-400" onClick={(e) => {e.stopPropagation(); repost()}}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
                         </svg>
                         <span>{formatNumber(post._count.repostedUsers)}</span>
                     </button>
-                    <button className="flex items-center space-x-2 text-gray-500 like hover:text-red-400" onClick={() => {like()}}>
+                    <button className="flex items-center space-x-2 text-gray-500 like hover:text-red-400" onClick={(e) => {e.stopPropagation(); like()}}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                         </svg>
                         <span>{formatNumber(post._count.likedUsers)}</span>
                     </button>
-                    <button className="flex items-center space-x-2 text-gray-500 hover:text-yellow-400 bookmark" onClick={() => {setBookmark(!bookmark); handleBookmark();}}>
+                    <button className="flex items-center space-x-2 text-gray-500 hover:text-yellow-400 bookmark" onClick={(e) => {e.stopPropagation(); setBookmark(!bookmark); handleBookmark();}}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
                         </svg>

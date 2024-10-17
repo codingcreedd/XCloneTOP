@@ -35,6 +35,8 @@ router.post('/create', verify, async (req, res) => {
             }
         });
 
+        console.log(post)
+
         return res.status(201).json({
             message: 'Created post successfully',
             status: 'success',
@@ -82,6 +84,48 @@ router.delete('/delete', verify, async (req, res) => {
             message: 'Internal Server Error: Cannot delete post',
             status: 'failure'
         })
+    }
+})
+
+//Get post
+router.get('/single-post/:post_id', verify, async (req, res) => {
+    try {
+        const {post_id} = req.params;
+        const post = await prisma.post.findUnique({
+            where: {id: Number(post_id)},
+            include: {
+                user: {
+                    select: {
+                        username: true, 
+                        pfpUrl: true,
+                        name: true
+                    }
+                },
+                _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
+                replies: {
+                    include: {
+                        user: {
+                            select: {
+                                username: true, 
+                                pfpUrl: true,
+                                name: true
+                            }
+                        },
+                        _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
+                    }
+                },
+                parentPost: true,
+            }
+        });
+
+        if(!post)
+            return res.status(400).json({message: 'Could not fetch post', status: 'failure'});
+        
+        return res.status(200).json({message: 'Retreived post successfuly', status: 'success', post})
+
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({message: 'Internal Server Error: Cannot fetch post', status: 'failure'})
     }
 })
 

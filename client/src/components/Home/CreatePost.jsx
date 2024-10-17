@@ -3,7 +3,7 @@ import posts_api from '../../apis/post'
 import { Context } from '../../context/ContextProvider';
 import Loader from '../PopUps/Loader';
 
-const CreatePost = () => {
+const CreatePost = ({isReply, message, parentId}) => {
 
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,8 +15,9 @@ const CreatePost = () => {
     e.preventDefault();
     setLoading(true);
     try { 
+      console.log(parentId)
         await posts_api.post('/create', {
-          description, isReply: false, parentId: null
+          description, isReply: isReply || false, parentId: parentId || null
         }, {headers: {Authorization: `Bearer ${token}`}})
         .then(response => {
           setLoading(false);
@@ -25,7 +26,6 @@ const CreatePost = () => {
             setForYou([...forYou, response.data.post]);
             setFollowingPosts([...followingPosts, response.data.post]);
           }
-          console.log(response.data.post);
         })
     } catch(err) {
       console.error(err);
@@ -33,7 +33,7 @@ const CreatePost = () => {
   }
 
   return (
-    <form className="bg-white relative bg-opacity-5 rounded-lg p-4 mb-6" onSubmit={handleCreatePost}>
+    <form className={`bg-white relative bg-opacity-5 ${isReply ? 'rounded-bl-lg rounded-br-lg' : 'rounded-lg'} p-4 mb-6`} onSubmit={handleCreatePost}>
       {
         loading && <Loader />
       }
@@ -42,7 +42,7 @@ const CreatePost = () => {
                 <div className="flex-grow">
                   <textarea
                     className="w-full bg-transparent border-b border-white border-opacity-20 resize-none focus:outline-none focus:border-opacity-50 placeholder-gray-500"
-                    placeholder="What's happening?"
+                    placeholder={message || 'Whats happening'}
                     value={description}
                     onChange={(e) => {setDescription(e.target.value)}}
                     rows={3}

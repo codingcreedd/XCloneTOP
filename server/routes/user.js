@@ -538,7 +538,7 @@ router.get('/latest', verify, async (req, res) => {
 })
 
 //get most followed users
-router.get('/mostfollowed', verify, async (req, res) => {
+router.get('/most-followed', verify, async (req, res) => {
     try {
         const mostFollowed = await prisma.user.findMany({
             take: 5,
@@ -551,13 +551,11 @@ router.get('/mostfollowed', verify, async (req, res) => {
                         followedBy: true
                     }
                 },
-                followedBy: {
-                    select: {id: true}
-                }
+                followedBy: true
             },
             orderBy: {
-                _count: {
-                    followedBy: 'desc'
+                followedBy: {
+                    _count: 'desc'
                 }
             }
         });
@@ -610,5 +608,67 @@ router.get('/search', verify, async (req, res) => {
         console.error(err);
     }
 });
+
+router.get('/who-to-follow', verify, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const users = await prisma.user.findMany({
+            where: { id: userId },
+            select: {
+                following: {
+                    select: {
+                        following: {
+                            where: {
+                                followedBy: {
+                                    none: {id: userId}
+                                }
+                            },
+                            take: 3,
+                            orderBy: {
+                                followedBy: {
+                                    _count: 'desc'
+                                }
+                            },
+                            select: {
+                                pfpUrl: true, 
+                                username: true, 
+                                name: true, 
+                                id: true,
+                                _count: {
+                                    select: { followedBy: true }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+
+        console.log(users[0].following);
+        if(!users) 
+            return res.status(400).json({message: 'Cannot retreive users', status: 'failure'});
+
+        const whotofollow = [];
+        users[0].following.forEach(following => {
+            const newArrayOfFollowings = [...following.following];
+
+            newArrayOfFollowings.forEach(following_ => {
+                const exists = whotofollow.some(user => user.id === following_.id);
+                if(!exists && following_.id !== userId)
+                    whotofollow.push(following_);
+            })
+        });
+
+
+         
+        return res.status(200).json({message: 'Retreived users successfuly', status: 'success', users: whotofollow})
+
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({message: 'Internal Server Error: Cannot retreive users', status: 'failure'});
+    }
+})
 
 module.exports = router;

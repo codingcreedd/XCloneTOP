@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import users_api from '../../apis/user';
+import Loader from '../PopUps/Loader';
+import UserCard from '../UserCard';
 
 const MostFollowed = () => {
 
@@ -11,7 +13,7 @@ const MostFollowed = () => {
     useEffect(() => {
         const fetchMostFollowed = async () => {
             setLoading(true);
-            await users_api.get('/mostfollowed', {
+            await users_api.get('/most-followed', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -27,17 +29,24 @@ const MostFollowed = () => {
     }, [])
 
   return (
-    <div className="hidden lg:block lg:w-[300px]">
-            <div className="bg-white bg-opacity-5 rounded-lg p-4 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Who to Follow</h2>
-              <div className="space-y-4">
-                {mostFollowed.map((user, index) => (
-                  <div key={index}>
-                        <UserCard user={user}/>
-                  </div>
-                ))}
-              </div>
+    <div className="relative hidden lg:block lg:w-[300px]">
+      {
+        loading && <Loader />
+      }
+      <div className="bg-white bg-opacity-5 rounded-lg p-4 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Most Followed</h2>
+        {
+          mostFollowed && (
+            <div className="space-y-4">
+              {mostFollowed.map((user, index) => (
+                <div key={index}>
+                      <UserCard user={user}/>
+                </div>
+              ))}
             </div>
+          )
+        }
+      </div>
     </div>
   )
 }

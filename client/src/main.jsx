@@ -11,6 +11,7 @@ import ExplorePage from './components/Routes/ExplorePage.jsx'
 import BookmarksPage from './components/Routes/BookmarksPage.jsx'
 import Error from './components/Routes/Error.jsx'
 import UserProfile from './components/Routes/UserProfile.jsx'
+import PostPage from './components/Routes/PostPage.jsx'
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
   {
     path: '/auth/:logType',
     element: <Logs />
+  },
+  {
+    path: '/post/:post_id',
+    element: <PostPage />
   }
 ]);
 

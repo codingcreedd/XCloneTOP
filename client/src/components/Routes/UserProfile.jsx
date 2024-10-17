@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Nav from '../Home/Nav';
 import users_api from '../../apis/user';
 import Loader from '../PopUps/Loader';
 import ProfileList from './ProfileList';
 import posts_api from '../../apis/post';
+import EditProfile from '../PopUps/EditProfile';
+import { Context } from '../../context/ContextProvider';
 
 export default function UserProfile() {
   const [activeTab, setActiveTab] = useState('posts');
@@ -17,9 +19,13 @@ export default function UserProfile() {
   const [bookmarks, setBookmarks] = useState([]);
   const [likes, setLikes] = useState([]);
 
+  const [editProfile, setEditProfile] = useState(false);
+
   const {username} = useParams();
 
   const token = localStorage.getItem("token");
+
+  const {userId} = useContext(Context);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -83,7 +89,7 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white relative">
       {/* Navigation Bar */}
       <Nav/>
 
@@ -107,9 +113,13 @@ export default function UserProfile() {
                   <h1 className="text-2xl font-bold text-white truncate">{userProfile?.name}</h1>
                 </div>
                 <div className="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-                  <button type="button" className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Edit Profile
-                  </button>
+                  {
+                    userProfile?.id === userId && (
+                      <button onClick={() => {setEditProfile(true)}} type="button" className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Edit Profile
+                      </button>
+                    )
+                  }
                 </div>
               </div>
             </div>
@@ -133,35 +143,42 @@ export default function UserProfile() {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="mt-6 border-b border-gray-700">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-              {['Posts', 'Replies', 'Bookmarks', 'Likes'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {setActiveTab(tab.toLowerCase()); handlePostFetch(tab);}}
-                  className={`${
-                    activeTab === tab.toLowerCase()
-                      ? 'border-blue-500 text-blue-500'
-                      : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </nav>
-          </div>
+          {
+            editProfile ? (<EditProfile cancel={() => {setEditProfile(false)}}/>) : (
+              <>
+                {/* Tabs */}
+                <div className="mt-6 border-b border-gray-700">
+                  <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                    {['Posts', 'Replies', 'Bookmarks', 'Likes'].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => {setActiveTab(tab.toLowerCase()); handlePostFetch(tab);}}
+                        className={`${
+                          activeTab === tab.toLowerCase()
+                            ? 'border-blue-500 text-blue-500'
+                            : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
 
-          {/* Content based on active tab */}
-          <div className=" relative mt-6">
-            {
-                tabLoading && <Loader />
-            }
-            {activeTab === 'posts' && <ProfileList posts={posts}/> }
-            {activeTab === 'replies' && <ProfileList posts={replies}/>}
-            {activeTab === 'bookmarks' && <ProfileList posts={bookmarks}/>}
-            {activeTab === 'likes' && <ProfileList posts={likes}/>}
-          </div>
+                {/* Content based on active tab */}
+                <div className=" relative mt-6">
+                  {
+                      tabLoading && <Loader />
+                  }
+                  {activeTab === 'posts' && <ProfileList posts={posts}/> }
+                  {activeTab === 'replies' && <ProfileList posts={replies}/>}
+                  {activeTab === 'bookmarks' && <ProfileList posts={bookmarks}/>}
+                  {activeTab === 'likes' && <ProfileList posts={likes}/>}
+                </div>
+              </>
+            )
+          }
+          
         </div>
       </main>
     </div>

@@ -147,30 +147,101 @@ router.get('/:username/profile', verify, async (req, res) => {
     }
 });
 
-//change user's name
-router.put('/update/name', verify, async (req, res) => {
+//get user information for edit profile
+router.get('/edit-profile-info', verify, async (req, res) => {
     try {
         const userId = req.user.id;
-        const {newName} = req.body;
 
-        const updateName = await prisma.user.update({
-            where: {
-                id: userId
-            },
-            data: {
-                name: newName
+        const userInfo = await prisma.user.findUnique({
+            where: {id: userId},
+            select: {
+                id:true, name: true, username: true, bio: true, pfpUrl: true
             }
         });
-        
-        if(!updateName){
-            return res.status(400).json({
-                message: 'Update name failed',
+
+        if(!userInfo){
+            return res.status(404).json({
+                message: 'User not found',
                 status: 'failure'
             })
         }
 
+        return res.status(200).json({
+            message: 'Retreived user information successfuly',
+            status: 'success',
+            userInfo: userInfo
+        });
+
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({
+            message: 'Internal Server Error: Could not retreive user information',
+            status: 'failure'
+        })
+    }
+})
+
+router.put('/update-user-info', verify, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const {newName, newUsername, newBio} = req.body;
+
+        if(newName) {
+            const updateName = await prisma.user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    name: newName
+                }
+            });
+
+            if(!updateName){
+                return res.status(400).json({
+                    message: 'Update name failed',
+                    status: 'failure'
+                })
+            }
+        }
+        
+        if(newUsername) {
+            const udpateUsername = await prisma.user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    username: newUsername
+                }
+            });
+
+            if(!udpateUsername){
+                return res.status(400).json({
+                    message: 'Update username failed',
+                    status: 'failure'
+                })
+            }
+        }
+
+        if(newBio) {
+            const updateBio = await prisma.user.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    bio: newBio
+                }
+            });
+            
+            if(!updateBio){
+                return res.status(400).json({
+                    message: 'Update bio failed',
+                    status: 'failure'
+                })
+            }
+        }
+
         return res.status(201).json({
-            message: 'Updated name successfuly',
+            message: 'Updated info successfuly',
             status: 'success'
         });
 
@@ -181,79 +252,7 @@ router.put('/update/name', verify, async (req, res) => {
             status: 'failure'
         })
     }
-});
-
-//change user's bio
-router.put('/update/bio', verify, async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const {newBio} = req.body;
-
-        const updateBio = await prisma.user.update({
-            where: {
-                id: userId
-            },
-            data: {
-                bio: newBio
-            }
-        });
-        
-        if(!updateBio){
-            return res.status(400).json({
-                message: 'Update bio failed',
-                status: 'failure'
-            })
-        }
-
-        return res.status(201).json({
-            message: 'Updated bio successfuly',
-            status: 'success'
-        });
-
-    } catch(err) {
-        console.error(err);
-        res.status(500).json({
-            message: 'Internal Server Error: Could not update bio',
-            status: 'failure'
-        })
-    }
-});
-
-//change username
-router.put('/update/username', verify, async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const {newUsername} = req.body;
-
-        const udpateUsername = await prisma.user.update({
-            where: {
-                id: userId
-            },
-            data: {
-                username: newUsername
-            }
-        });
-        
-        if(!udpateUsername){
-            return res.status(400).json({
-                message: 'Update username failed',
-                status: 'failure'
-            })
-        }
-
-        return res.status(201).json({
-            message: 'Updated username successfuly',
-            status: 'success'
-        });
-
-    } catch(err) {
-        console.error(err);
-        res.status(500).json({
-            message: 'Internal Server Error: Could not update username',
-            status: 'failure'
-        })
-    }
-});
+})
 
 //add following 
 router.post('/follow', verify, async (req, res) => {

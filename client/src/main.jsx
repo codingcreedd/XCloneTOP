@@ -12,6 +12,8 @@ import BookmarksPage from './components/Routes/BookmarksPage.jsx'
 import Error from './components/Routes/Error.jsx'
 import UserProfile from './components/Routes/UserProfile.jsx'
 import PostPage from './components/Routes/PostPage.jsx'
+import MessageList from './components/Routes/MessageList.jsx'
+import ChatRoom from './components/Routes/ChatRoom.jsx'
 
 const router = createBrowserRouter([
   {
@@ -48,6 +50,14 @@ const router = createBrowserRouter([
   {
     path: '/post/:post_id',
     element: <PostPage />
+  },
+  {
+    path: '/messages',
+    element: <MessageList />
+  },
+  {
+    path: '/chat/:user_id',
+    element: <ChatRoom />
   }
 ]);
 

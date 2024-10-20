@@ -1,15 +1,26 @@
 import gsap from 'gsap';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import users_api from '../apis/user';
 import Loader from './PopUps/Loader';
 import { Link, useNavigate } from 'react-router-dom';
+import { Context } from '../context/ContextProvider';
 
 const Post = ({post, postPage}) => {
 
     const token = localStorage.getItem("token");
 
+    const {userId} = useContext(Context);
+
     const [bookmark, setBookmark] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const [liked, setLiked] = useState(false);
+    const [bookmarked, setBookmarked] = useState(false);
+    const [reposted, setReposted] = useState(false);
+
+    const [likes, setLikes] = useState(0);
+    const [bookmarks, setBookmarks] = useState(0);
+    const [reposts, setReposts] = useState(0);
 
     const navigate = useNavigate();
 
@@ -46,6 +57,17 @@ const Post = ({post, postPage}) => {
             });
         }
     }, [bookmark]);
+
+    useEffect(() => {
+
+        setLikes(post?._count?.likedUsers);
+        setReposts(post?._count?.repostedUsers);
+
+
+        setLiked(post?.likedUsers?.some(user => user.id === userId));
+        setBookmarked(post?.bookmarkUsers?.some(user => user.id === userId));
+        setReposted(post?.repostedUsers?.some(user => user.id === userId));
+    }, [post])
     
 
     const handleBookmark = async () => {
@@ -109,7 +131,7 @@ const Post = ({post, postPage}) => {
             <div className="flex-grow">
                 <div className="flex items-center space-x-2">
                     <span className="font-semibold">{post?.user?.name}</span>
-                    <Link to={`/${post?.user?.username}/profile`} className="text-gray-500 text-sm hover:underline cursor-pointer transition-all">@{post?.user.username}</Link>
+                    <Link to={`/${post?.user?.username}/profile`} className="text-gray-500 text-sm hover:underline cursor-pointer transition-all" onClick={(e) => {e.stopPropagation()}}>@{post?.user.username}</Link>
                     <span className="text-gray-500 text-sm">· {post?.createdAt}</span>
                 </div>
                 <p className="mt-2 break-words whitespace-normal max-h-40 overflow-hidden">{post.description}</p>
@@ -123,20 +145,20 @@ const Post = ({post, postPage}) => {
                         </svg>
                         <span>{formatNumber(post._count.replies)}</span>
                     </button>
-                    <button className="flex items-center space-x-2 repost text-gray-500 hover:text-green-400" onClick={(e) => {e.stopPropagation(); repost()}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <button className={`flex items-center space-x-2 repost text-gray-500 hover:text-green-400`} onClick={(e) => {e.stopPropagation(); setReposted(true); setReposts(reposts => reposts + 1); repost()}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${reposted && 'text-green-600'}`} viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
                         </svg>
-                        <span>{formatNumber(post._count.repostedUsers)}</span>
+                        <span>{formatNumber(reposts)}</span>
                     </button>
-                    <button className="flex items-center space-x-2 text-gray-500 like hover:text-red-400" onClick={(e) => {e.stopPropagation(); like()}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <button className="flex items-center space-x-2 text-gray-500 like hover:text-red-400" onClick={(e) => {e.stopPropagation(); setLiked(true);setLikes(likes => likes + 1); like()}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${liked && 'text-red-600'}`} viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                         </svg>
-                        <span>{formatNumber(post._count.likedUsers)}</span>
+                        <span>{formatNumber(likes)}</span>
                     </button>
-                    <button className="flex items-center space-x-2 text-gray-500 hover:text-yellow-400 bookmark" onClick={(e) => {e.stopPropagation(); setBookmark(!bookmark); handleBookmark();}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <button className="flex items-center space-x-2 text-gray-500 hover:text-yellow-400 bookmark" onClick={(e) => {e.stopPropagation(); setBookmark(!bookmark); setBookmarked(true); handleBookmark();}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${bookmarked && 'text-yellow-600'}`} viewBox="0 0 20 20" fill="currentColor">
                             <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
                         </svg>
                     </button>

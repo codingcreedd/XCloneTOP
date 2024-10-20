@@ -8,6 +8,7 @@ import CreatePost from "../Home/CreatePost";
 export default function PostPage() {
 
     const [post, setPost] = useState(null)
+    const [replies, setReplies] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const token = localStorage.getItem("token");
@@ -22,10 +23,11 @@ export default function PostPage() {
                     Authorization: `Bearer ${token}`
                 }
             }).then(response => {
-                if(response.status === 200)
+                if(response.status === 200){
                     setPost(response.data.post);
+                    setReplies(response.data.post.replies);
+                }
 
-                console.log(response.data.post)
                 setLoading(false);
             })
         }
@@ -63,14 +65,14 @@ export default function PostPage() {
   
           {/* Reply Section */}
           {
-            post !== null && <CreatePost isReply={true} message={`Post your reply`} parentId={post?.id}/>
+            post !== null && <CreatePost isReply={true} message={`Post your reply`} parentId={post?.id} replies={replies} setReplies={setReplies}/>
           }
   
           {/* Replies */}
           {
             post && (
                 <div className="space-y-4">
-                    {post?.replies?.map((reply) => (
+                    {replies?.map((reply) => (
                     <Post key={reply.id} post={reply}/>
                     ))}
                 </div>

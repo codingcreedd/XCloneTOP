@@ -100,6 +100,14 @@ router.get('/single-post/:post_id', verify, async (req, res) => {
                         pfpUrl: true,
                         name: true
                     }
+                },likedUsers: {
+                    select: {id: true}
+                },
+                bookmarkUsers: {
+                    select: {id: true}
+                },
+                repostedUsers: {
+                    select: {id: true}
                 },
                 _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
                 replies: {
@@ -110,6 +118,14 @@ router.get('/single-post/:post_id', verify, async (req, res) => {
                                 pfpUrl: true,
                                 name: true
                             }
+                        },likedUsers: {
+                            select: {id: true}
+                        },
+                        bookmarkUsers: {
+                            select: {id: true}
+                        },
+                        repostedUsers: {
+                            select: {id: true}
                         },
                         _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
                     }
@@ -158,18 +174,21 @@ router.get('/following-posts', verify, async (req, res) => {
                 user: true,
                 likedUsers: {
                     select: {
+                        id: true,
                         pfpUrl: true,
                         username: true
                     }
                 },
                 bookmarkUsers: {
                     select: {
+                        id: true,
                         pfpUrl: true,
                         username: true
                     }
                 },
                 repostedUsers: {
                     select: {
+                        id: true,
                         pfpUrl: true,
                         username: true
                     }
@@ -181,6 +200,8 @@ router.get('/following-posts', verify, async (req, res) => {
                 createdAt: 'desc'
             }
         });
+
+        // const liked
 
         if(!posts) {
             return res.status(400).json({
@@ -222,6 +243,15 @@ router.get('/for-you', verify, async (req, res) => {
                             name: true
                         }
                     },
+                    likedUsers: {
+                        select: {id: true}
+                    },
+                    bookmarkUsers: {
+                        select: {id: true}
+                    },
+                    repostedUsers: {
+                        select: {id: true}
+                    },
                     _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
                 }
             });
@@ -237,7 +267,7 @@ router.get('/for-you', verify, async (req, res) => {
             })
 
         } else {
-            const following = await prisma.user.findMany({
+            const following = await prisma.user.findUnique({
                 where: {id: userId},
                 select: {
                     following: {
@@ -253,6 +283,15 @@ router.get('/for-you', verify, async (req, res) => {
                                             name: true
                                         }
                                     },
+                                    likedUsers: {
+                                        select: {id: true}
+                                    },
+                                    bookmarkUsers: {
+                                        select: {id: true}
+                                    },
+                                    repostedUsers: {
+                                        select: {id: true}
+                                    },
                                     _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
                                 },
                                 take: 3
@@ -266,6 +305,15 @@ router.get('/for-you', verify, async (req, res) => {
                                             username: true,
                                             name: true
                                         }
+                                    },
+                                    likedUsers: {
+                                        select: {id: true}
+                                    },
+                                    bookmarkUsers: {
+                                        select: {id: true}
+                                    },
+                                    repostedUsers: {
+                                        select: {id: true}
                                     },
                                     _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
                                 },
@@ -281,16 +329,25 @@ router.get('/for-you', verify, async (req, res) => {
                                             name: true
                                         }
                                     },
+                                    likedUsers: {
+                                        select: {id: true}
+                                    },
+                                    bookmarkUsers: {
+                                        select: {id: true}
+                                    },
+                                    repostedUsers: {
+                                        select: {id: true}
+                                    },
                                     _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
                                 },
                                 take: 3
                             }
                         }
-                    }
+                    },
                 }
             });
     
-            const followings = following[0].following;
+            const followings = following.following;
     
             if(followings) {
                 let posts = [];
@@ -344,7 +401,28 @@ router.get('/:username/posts', verify, async (req, res) => {
                 ]
             },
             select: {
-                id: true, description: true, user: true, replies: true, createdAt: true,
+                id: true, description: true, user: true, replies: {
+                    select: {
+                        likedUsers: {
+                            select: {id: true}
+                        },
+                        bookmarkUsers: {
+                            select: {id: true}
+                        },
+                        repostedUsers: {
+                            select: {id: true}
+                        },
+                    }
+                }, createdAt: true,
+                likedUsers: {
+                    select: {id: true}
+                },
+                bookmarkUsers: {
+                    select: {id: true}
+                },
+                repostedUsers: {
+                    select: {id: true}
+                },
                 _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
             },
             orderBy: {
@@ -386,6 +464,15 @@ router.get('/:user_id/bookmarks', verify, async (req, res) => {
             },
             select: {
                 id: true, description: true, user: true, replies: true, createdAt: true,
+                likedUsers: {
+                    select: {id: true}
+                },
+                bookmarkUsers: {
+                    select: {id: true}
+                },
+                repostedUsers: {
+                    select: {id: true}
+                },
                 _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}}
             }
         })
@@ -425,6 +512,15 @@ router.get('/:user_id/replies', verify, async (req, res) => {
             },
             select: {
                 id: true, description: true, user: true, replies: true, createdAt: true,
+                likedUsers: {
+                    select: {id: true}
+                },
+                bookmarkUsers: {
+                    select: {id: true}
+                },
+                repostedUsers: {
+                    select: {id: true}
+                },
                 _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
                 parentPost: true
             }, orderBy: {
@@ -467,6 +563,15 @@ router.get('/:user_id/likes', verify, async (req, res) => {
             },
             select: {
                 id: true, description: true, user: true, replies: true, createdAt: true,
+                likedUsers: {
+                    select: {id: true}
+                },
+                bookmarkUsers: {
+                    select: {id: true}
+                },
+                repostedUsers: {
+                    select: {id: true}
+                },
                 _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
                 parentPost: true
             }
@@ -505,6 +610,16 @@ router.get('/search', verify, async (req, res) => {
             },
             select: {
                 id: true, description: true, user: true, replies: true, createdAt: true,
+                likedUsers: {
+                    select: {id: true}
+                },
+                bookmarkUsers: {
+                    select: {id: true}
+                },
+                repostedUsers: {
+                    select: {id: true}
+                },
+                
                 _count: {select: {bookmarkUsers: true, replies: true, likedUsers: true, repostedUsers: true}},
                 parentPost: true
             }

@@ -7,12 +7,15 @@ import ProfileList from './ProfileList';
 import posts_api from '../../apis/post';
 import EditProfile from '../PopUps/EditProfile';
 import { Context } from '../../context/ContextProvider';
+import MessageButton from '../MessageButton';
 
 export default function UserProfile() {
   const [activeTab, setActiveTab] = useState('posts');
   const [userProfile, setUserProfile] = useState({});
   const [loading, setLoading] = useState(false);
   const [tabLoading, setTabLoading] = useState(false);
+
+  const [isFollower, setIsFollower] = useState(null);
 
   const [posts, setPosts] = useState([]);
   const [replies, setReplies] = useState([]);
@@ -48,6 +51,34 @@ export default function UserProfile() {
             if(userProfileResponse.status === 200) {
                 setLoading(false);
                 setUserProfile(userProfileResponse.data.userInfo)
+                
+                let isFollower = false;
+                const followers = [...userProfileResponse.data.userInfo.followedBy];
+                
+                //binary search if this client is a follower of a user
+                let start = 0;
+                let end = followers.length - 1;
+
+                while(start <= end) {
+                  let middle = Math.floor((start + end) / 2);
+
+                  if(followers[middle].id === userId){
+                    isFollower = true;
+                    break;
+                  }
+
+                  if(followers[middle].id > userId) 
+                    end = middle - 1;
+                  
+
+                  if(followers[middle].id < userId)
+                    start = middle + 1;
+
+                }
+
+                setIsFollower(isFollower);
+
+
             }
             
             if(userPostsResponse.status === 200) {
@@ -133,13 +164,24 @@ export default function UserProfile() {
             <p className="mt-4 text-sm text-gray-300">
                 {userProfile?.bio}
             </p>
-            <div className="mt-4 flex space-x-6">
+            <div className="mt-4 flex items-center space-x-6">
               <div className="text-sm text-gray-400">
                 <span className="font-medium text-white">{userProfile?.following?.length}</span> Following
               </div>
               <div className="text-sm text-gray-400">
                 <span className="font-medium text-white">{userProfile?.followedBy?.length}</span> Followers
               </div>
+              {
+                isFollower !== null && (
+                  <div>
+                    {
+                      (userId !== userProfile?.id && isFollower) && (
+                        <MessageButton userId={userProfile?.id}/>
+                      )
+                    }
+                  </div>
+                )
+              }
             </div>
           </div>
 

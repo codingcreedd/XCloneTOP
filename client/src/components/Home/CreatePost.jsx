@@ -3,7 +3,7 @@ import posts_api from '../../apis/post'
 import { Context } from '../../context/ContextProvider';
 import Loader from '../PopUps/Loader';
 
-const CreatePost = ({isReply, message, parentId}) => {
+const CreatePost = ({isReply, message, parentId, replies, setReplies}) => {
 
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -13,20 +13,25 @@ const CreatePost = ({isReply, message, parentId}) => {
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try { 
-      console.log(parentId)
-        await posts_api.post('/create', {
-          description, isReply: isReply || false, parentId: parentId || null
-        }, {headers: {Authorization: `Bearer ${token}`}})
-        .then(response => {
-          setLoading(false);
-          if(response.status === 201) {
-            setDescription('');
-            setForYou([...forYou, response.data.post]);
-            setFollowingPosts([...followingPosts, response.data.post]);
-          }
-        })
+        if(description !== '' && description !== null) {
+          setLoading(true);
+          await posts_api.post('/create', {
+            description, isReply: isReply || false, parentId: parentId || null
+          }, {headers: {Authorization: `Bearer ${token}`}})
+          .then(response => {
+            setLoading(false);
+            if(response.status === 201) {
+              setDescription('');
+              setForYou([response.data.post, ...forYou]);
+              setFollowingPosts([response.data.post,...followingPosts]);
+
+              if(isReply){
+                setReplies([response.data.post, ...replies])
+              } 
+            }
+          })
+        }
     } catch(err) {
       console.error(err);
     }

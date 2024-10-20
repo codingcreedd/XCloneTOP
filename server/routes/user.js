@@ -120,7 +120,11 @@ router.get('/:username/profile', verify, async (req, res) => {
             where: {username},
             select: {
                 id:true, name: true, username: true, email: true, bio: true, pfpUrl: true,
-                followedBy: true, following: true, createdAt: true,
+                followedBy: {
+                    orderBy: {
+                        id: 'asc'
+                    }
+                }, following: true, createdAt: true,
                 lastLogin: true, updatedAt: true, posts: true
             }
         });
@@ -258,48 +262,61 @@ router.put('/update-user-info', verify, async (req, res) => {
 router.post('/follow', verify, async (req, res) => {
     try {
         const userId = req.user.id;
-        const {followingId} = req.body;
+        const { followingId } = req.body;
 
-        const followUser = await prisma.user.update({
-            where: {id: userId},
-            data: {
-                following: {
-                    connect: {
-                        id: followingId
+        const [followUser, addFollower, createChat] = await Promise.all([
+            prisma.user.update({
+                where: { id: userId },
+                data: {
+                    following: {
+                        connect: {
+                            id: followingId
+                        }
                     }
                 }
-            }
-        });
+            }),
 
-        if(!followUser) {
-            return res.status(400).json({
-                message: 'Could not follow user',
-                status: 'failure'
+            prisma.user.update({
+                where: { id: followingId },
+                data: {
+                    followedBy: {
+                        connect: {
+                            id: userId
+                        }
+                    }
+                }
+            }),
+
+            prisma.chat.create({
+                data: {
+                    users: {
+                        connect: [
+                            { id: userId }, 
+                            { id: followingId }
+                        ]
+                    }
+                }
             })
-        }
+        ]);
 
-        const addFollower = await prisma.user.update({
-            where: {id: followingId},
-            data: {
-                followedBy: {
-                    connect: {
-                        id: userId
-                    }
-                }
-            }
-        });
-
-        if(!addFollower) {
+        if (!followUser || !addFollower || !createChat) {
             return res.status(400).json({
                 message: 'Process failed',
                 status: 'failure'
-            })
+            });
         }
 
-        return res.status(201).json({message: 'Added follower successfuly', status: 'success'})
+        return res.status(201).json({ 
+            message: 'Added follower successfully', 
+            status: 'success' 
+        });
 
-    } catch(err) {
+    } catch (err) {
         console.error(err);
+        return res.status(500).json({
+            message: 'Internal Server Error',
+            status: 'failure'
+        });
     }
 });
 
@@ -307,50 +324,63 @@ router.post('/follow', verify, async (req, res) => {
 router.put('/unfollow', verify, async (req, res) => {
     try {
         const userId = req.user.id;
-        const {followingId} = req.body;
+        const { followingId } = req.body;
 
-        const unfollowUser = await prisma.user.update({
-            where: {id: userId},
-            data: {
-                following: {
-                    disconnect: {
-                        id: followingId
+        const [unfollowUser, removeFollower, deleteChat] = await Promise.all([
+            prisma.user.update({
+                where: { id: userId },
+                data: {
+                    following: {
+                        disconnect: {
+                            id: followingId
+                        }
                     }
                 }
-            }
-        });
+            }),
 
-        if(!unfollowUser) {
-            return res.status(400).json({
-                message: 'Could not unfollow user',
-                status: 'failure'
+            prisma.user.update({
+                where: { id: followingId },
+                data: {
+                    followedBy: {
+                        disconnect: {
+                            id: userId
+                        }
+                    }
+                }
+            }),
+
+            prisma.chat.delete({
+                where: {
+                    users: {
+                        some: [
+                            {id: userId},
+                            {id: followingId}
+                        ]
+                    }
+                }
             })
-        }
+        ]);
 
-        const removeFollower = await prisma.user.update({
-            where: {id: followingId},
-            data: {
-                followedBy: {
-                    disconnect: {
-                        id: userId
-                    }
-                }
-            }
-        });
-
-        if(!removeFollower) {
+        if (!unfollowUser || !removeFollower || !deleteChat) {
             return res.status(400).json({
                 message: 'Process failed',
                 status: 'failure'
-            })
+            });
         }
 
-        return res.status(201).json({message: 'Unfollowed user successfuly', status: 'success'})
+        return res.status(201).json({
+            message: 'Unfollowed user successfully',
+            status: 'success'
+        });
 
-    } catch(err) {
+    } catch (err) {
         console.error(err);
+        return res.status(500).json({
+            message: 'Internal Server Error',
+            status: 'failure'
+        });
     }
-})
+});
 
 //like a post
 router.put('/like-post', verify, async (req, res) => {
@@ -669,5 +699,96 @@ router.get('/who-to-follow', verify, async (req, res) => {
         return res.status(500).json({message: 'Internal Server Error: Cannot retreive users', status: 'failure'});
     }
 })
+
+//get list of users which you have more than one message with
+router.get('/message-users', verify, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const users = await prisma.user.findMany({
+            where: {
+                chats: {
+                    some: {
+                        users: {
+                            some: {id: userId}
+                        },
+                        messages: {
+                            some: {}
+                        }
+                    },
+                }
+            },
+            select: {
+                id: true, pfpUrl: true, name: true, username: true, bio: true
+            }
+        });
+
+        if(!users)
+            return res.status(400).json({message: 'Could not retreive users', status: 'failure'});
+
+        return res.status(200).json({
+            message: 'Retreived users successfully',
+            status: 'success',
+            users
+        })
+
+
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({
+            message: 'Internal Server Error: Could not retreive users',
+            status: 'failure'
+        })
+    }
+})
+
+//-----------------------------------------------------------------------------------------------------------------------//
+
+//get chat between 2 users
+router.get('/chat/:user_id', verify, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const {user_id} = req.params;
+        const chat = await prisma.chat.findFirst({
+            where: {
+                users: {
+                    some: {
+                        id: {
+                            in: [userId, Number(user_id)]
+                        }
+                    }
+                }
+            },
+            include: {
+                messages: {
+                    select: {
+                        User: true,
+                        description: true,
+                        imageUrl: true,
+                        createdAt: true
+                    }
+                },
+                users: true
+            }
+        });
+
+        if(!chat)
+            return res.status(400).json({message: 'Could not retreive chat', status: 'failure'});
+
+        return res.status(200).json({
+            message: 'Retreived chat successfully',
+            status: 'success',
+            chat
+        })
+
+
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({
+            message: 'Internal Server Error: Could not retreive users',
+            status: 'failure'
+        })
+    }
+});
+
 
 module.exports = router;

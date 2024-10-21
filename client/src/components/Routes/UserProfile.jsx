@@ -11,7 +11,7 @@ import MessageButton from '../MessageButton';
 
 export default function UserProfile() {
   const [activeTab, setActiveTab] = useState('posts');
-  const [userProfile, setUserProfile] = useState({});
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tabLoading, setTabLoading] = useState(false);
 
@@ -172,7 +172,7 @@ export default function UserProfile() {
                 <span className="font-medium text-white">{userProfile?.followedBy?.length}</span> Followers
               </div>
               {
-                isFollower !== null && (
+                (isFollower !== null && userProfile !== null) && (
                   <div>
                     {
                       (userId !== userProfile?.id && isFollower) && (

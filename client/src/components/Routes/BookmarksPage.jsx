@@ -51,7 +51,7 @@ export default function Bookmarks() {
                     <div className='flex flex-col gap-10'>
                         {
                             bookmarks?.map(bookmark => (
-                                <Post post={bookmark} />
+                                <Post post={bookmark} key={bookmark.id} />
                             ))
                         }
                     </div>

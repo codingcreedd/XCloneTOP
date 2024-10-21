@@ -9,7 +9,7 @@ export default function Component() {
 
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [chatUser, setChatUser] = useState('');
     
   const token = localStorage.getItem("token");
 
@@ -35,10 +35,13 @@ export default function Component() {
             if(response.status === 200) {
                 setLoading(false);
                 setMessages(response.data.chat.messages);
-                // setUsers(response.data.chat.users.filter(user => user_id === user.id));
-                const userIdNum = Number(user_id);
-                const arr = response.data.chat.users.filter(user => userIdNum === user.id);
-                console.log(arr)
+                const userIdNum = Number(user_id);                
+                const [messagingUser] = response.data.chat.users.filter(user => userIdNum === user.id)
+
+                if(messagingUser)
+                  setChatUser(messagingUser);
+
+
             }
         })
     }
@@ -60,8 +63,11 @@ export default function Component() {
           </svg>
         </button>
         {
-          users && (
-            <h1 className="text-sm font-medium">Chat with {users[0]}</h1>
+          chatUser && (
+            <div className='flex items-center gap-2'>
+              <h1 className="text-sm font-bold">Chat with {chatUser.name}</h1>
+              <p className='text-[0.7rem]'>@{chatUser.username}</p>
+            </div>
           )
         }
       </nav>

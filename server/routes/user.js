@@ -751,7 +751,7 @@ router.get('/chat/:user_id', verify, async (req, res) => {
         const chat = await prisma.chat.findFirst({
             where: {
                 users: {
-                    some: {
+                    every: {
                         id: {
                             in: [userId, Number(user_id)]
                         }

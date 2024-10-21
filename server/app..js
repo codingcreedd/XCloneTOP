@@ -18,9 +18,11 @@ app.use(express.urlencoded({extended: true}));
 //Routes
 const user = require('./routes/user');
 const post = require('./routes/post');
+const message = require('./routes/message');
 
 app.use('/user', user);
 app.use('/post', post);
+app.use('/message', message);
 
 const port = process.env.PORT;
 app.listen(port, () => {

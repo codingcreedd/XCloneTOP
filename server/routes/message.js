@@ -11,7 +11,8 @@ router.post('/send', verify, async (req, res) => {
 
         let messageObj = {
             description: description,
-            userId
+            userId,
+            chatId
         }
 
         if(imageUrl)
@@ -19,30 +20,16 @@ router.post('/send', verify, async (req, res) => {
 
         //create the message first
         const createMessage = await prisma.message.create({
-            data: messageObj
+            data: messageObj,
+            include: {
+                User: true
+            }
         });
 
-        //update chat
-        if(createMessage) {
-           const updateChat = await prisma.chat.update({
-                where: {id: chatId},
-                data: {
-                    messages: {
-                        connect: {
-                            id: createMessage.id
-                        }
-                    }
-                }
-           });
+        if(!createMessage)
+            return res.status(400).json({message: 'Cannot create message', status: 'failure'});
 
-           if(!updateChat)
-            return res.status(400).json({message: 'Cannot update chat', status: 'failure'});
-
-            return res.status(201).json({message: 'Sent message successfully', status: 'success'});
-
-        }
-
-        return res.status(400).json({message: 'Cannot create message', status: 'failure'});
+        return res.status(201).json({message: 'Sent message successfully', status: 'success', message: createMessage, clientId: userId})
 
     } catch(err) {
         console.error(err);

@@ -72,14 +72,9 @@ const Post = ({post, postPage}) => {
 
     const handleBookmark = async () => {
         try {
-            setLoading(true);
             await users_api.put('/bookmark-post', {postId: post.id}, {
                 headers: {
                     Authorization: `Bearer ${token}`
-                }
-            }).then(response => {
-                if(response.status === 201) {
-                    setLoading(false);
                 }
             })
         } catch(err) {
@@ -89,14 +84,9 @@ const Post = ({post, postPage}) => {
 
     const like = async () => {
         try {
-            setLoading(true);
             await users_api.put('/like-post', {postId: post.id}, {
                 headers: {
                     Authorization: `Bearer ${token}`
-                }
-            }).then(response => {
-                if(response.status === 201) {
-                    setLoading(false);
                 }
             })
         } catch(err) {

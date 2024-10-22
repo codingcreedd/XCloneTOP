@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import users_api from '../../apis/user'
 import Loader from '../PopUps/Loader';
+import PopUpMessage from '../PopUps/PopUpMessage';
 
 const SignUp = () => {
 
@@ -11,6 +12,7 @@ const SignUp = () => {
     const [password, setPassword] = useState('');
 
     const [loading, setLoading] = useState(false);
+    const [popUp, setPopUp] = useState(null);
     const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
@@ -26,6 +28,17 @@ const SignUp = () => {
                 setLoading(false);
                 if(response.status === 201) {
                     navigate('/auth/login', {replace: true});
+                    setPopUp({
+                      message: response.data.message,
+                      status: response.data.status
+                    })
+                    console.log(response)
+                } else {
+                  setPopUp({
+                    message: response.data.message,
+                    status: response.data.status
+                  })
+                  console.log(response)
                 }
             })
         } catch(err) {
@@ -42,6 +55,9 @@ const SignUp = () => {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-white opacity-5 rounded-full blur-3xl"></div>
     
             { loading && <Loader /> }
+            {
+              popUp !== null && <PopUpMessage message={popUp.message} status={popUp.status}/>
+            }
 
           <div className="w-full max-w-md relative z-10">
             <form className="bg-white bg-opacity-5 backdrop-filter backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white border-opacity-10" onSubmit={handleSignUp}>

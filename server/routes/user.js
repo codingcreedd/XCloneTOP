@@ -5,6 +5,10 @@ const verify = require('../config/verify').verify;
 const bcrypt = require('bcrypt');
 const generateToken = require('../Utils/jwtToken');
 
+const numberRegex = /\d/;
+const uppercaseRegex = /[A-Z]/;
+const specialCharacterRegex = /[@$!%*?&]/;
+
 router.get('/protected', verify, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -32,44 +36,69 @@ router.get('/protected', verify, async (req, res) => {
     }
 });
 
+
 router.post('/signup', async (req, res) => {
     try {
-        console.log('ran')
         const {name, username, email, password} = req.body;
+
+        let messages = [];
         
-        if(password) {
-            var hashedPassword = await bcrypt.hash(password, 10);
+        if (!password) {
+            messages.push(`Password is required`);
+        } else {
+            if (password.length < 8) {
+                messages.push(`Password must be at least 8 characters long`);
+            }
+            if (!numberRegex.test(password)) {
+                messages.push(`Password must contain at least one number`);
+            }
+            if (!uppercaseRegex.test(password)) {
+                messages.push(`Password must contain at least one uppercase letter`);
+            }
+            if (!specialCharacterRegex.test(password)) {
+                messages.push(`Password must contain at least one special character`);
+            }
         }
+
+        if (messages.length > 0) {
+            return res.status(400).json({
+                message: messages[0], 
+                status: 'failure',
+                errors: messages
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const userExist = await prisma.user.findUnique({
             where: {email}
         });
 
         if(userExist) {
-            console.log('user already exists')
-            return res.status(409).json({message: 'User already exists', status: 'failure'})
+            console.log('User  already exists');
+            return res.status(409).json({message: 'User  already exists', status: 'failure'});
         }
 
-        const newUser = await prisma.user.create({
+        const newUser  = await prisma.user.create({
             data: {
                 name, username, email, password: hashedPassword
             }
         });
 
-        if(!newUser) {
-            console.log('could not create user')
+        if (!newUser ) {
+            console.log('Could not create user');
             return res.status(400).json({
                 message: 'Could not create user',
                 status: 'failure'
-            })
+            });
         }
 
         res.status(201).json({
-            message: 'User created',
+            message: 'User  created',
             status: 'success'
-        })
+        });
 
-    } catch(err) {
+    } catch (err) {
         console.error("Sign Up Error: " + err);
     }
 });
@@ -760,11 +789,8 @@ router.get('/chat/:user_id', verify, async (req, res) => {
             },
             include: {
                 messages: {
-                    select: {
-                        User: true,
-                        description: true,
-                        imageUrl: true,
-                        createdAt: true
+                    include: {
+                        User: true
                     }
                 },
                 users: true
@@ -777,7 +803,8 @@ router.get('/chat/:user_id', verify, async (req, res) => {
         return res.status(200).json({
             message: 'Retreived chat successfully',
             status: 'success',
-            chat
+            chat,
+            clientId: userId
         })
 
 

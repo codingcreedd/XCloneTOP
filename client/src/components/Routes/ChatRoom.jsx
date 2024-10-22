@@ -3,21 +3,39 @@ import users_api from '../../apis/user'
 import Loader from '../PopUps/Loader'
 import Message from '../Message'
 import { useParams } from 'react-router-dom'
+import messages_api from '../../apis/message';
 
-export default function Component() {
+export default function ChatRoom() {
   const [message, setMessage] = useState('')
 
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [chatUser, setChatUser] = useState('');
+  const [chatId, setChatId] = useState(null);
+  const [clientId, setClientId] = useState(null);
     
   const token = localStorage.getItem("token");
 
   const {user_id} = useParams();
 
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await messages_api.post('/send', {description: message, chatId}, {
+        headers: {Authorization: `Bearer ${token}`}
+      }).then(response => {
+        if(response.status === 201) {
+          setLoading(false);
+          setMessages([...messages, response.data.message]);
+          setMessage('');
+        }
+      })
+    } catch(err) {
+      setLoading(false);
+      console.error(err);
+    }
   }
 
   // const handleImageSelect = (e) => {
@@ -35,6 +53,8 @@ export default function Component() {
             if(response.status === 200) {
                 setLoading(false);
                 setMessages(response.data.chat.messages);
+                setChatId(response.data.chat.id);
+                setClientId(response.data.clientId);
                 const userIdNum = Number(user_id);                
                 const [messagingUser] = response.data.chat.users.filter(user => userIdNum === user.id)
 
@@ -81,7 +101,9 @@ export default function Component() {
           messages && (
             <div>
                 {messages.map((msg) => (
-                  <Message msg={msg} />
+                  <div className='mb-3' key={msg.id}>
+                    <Message msg={msg} clientId={clientId}/>
+                  </div>
                 ))}
             </div>
           )

@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Nav from "../Home/Nav";
 import users_api from "../../apis/user";
 import Loader from "../PopUps/Loader";
+import MessageButton from "../MessageButton";
+import { Context } from "../../context/ContextProvider";
 
 export default function MessageList() {
 
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState([]);
+    const {userId} =  useContext(Context);
 
     const token = localStorage.getItem("token");
 
@@ -60,7 +63,7 @@ export default function MessageList() {
                 users.length > 0 ? (
                     <>
                         {users.map((user) => (
-                            <div key={user} className="bg-white bg-opacity-5 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-10">
+                            <div key={user} className={`bg-white bg-opacity-5 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-10 ${user?.id === userId && 'hidden'}`}>
                                 <div className="flex items-center space-x-4">
                                 <img src="/placeholder.svg?height=64&width=64" alt="User Avatar" className="w-16 h-16 rounded-full" />
                                 <div className="flex-grow">
@@ -71,9 +74,7 @@ export default function MessageList() {
                                 <p className="text-gray-300 text-xs mt-3 line-clamp-2">
                                 {user?.bio}
                                 </p>
-                                <button className="w-full bg-blue-500 text-white mt-4 py-2 rounded-full text-sm hover:bg-blue-600 transition duration-200">
-                                Message
-                                </button>
+                                <MessageButton className={`w-full bg-blue-500 text-white mt-4 py-2 rounded-full text-sm hover:bg-blue-600 transition duration-200`} userId={user?.id} />
                             </div>
                           ))}
                     </>

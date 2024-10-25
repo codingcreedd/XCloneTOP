@@ -41,8 +41,8 @@ export default function Bookmarks() {
     <div className="min-h-screen bg-black text-white sm:p-8">
         <Nav />
       <div className="max-w-7xl mx-auto pt-20">
-        <h1 className="text-3xl font-bold mb-8 text-center">Bookmarks</h1>
-        <div className='relative px-20 border border-white rounded-lg py-10'>
+        <h1 className="text-3xl font-bold mb-8 text-center max-md:mb-5 max-md:text-xl">Bookmarks</h1>
+        <div className='relative px-20 max-md:px-4 max-md:mx-2 border border-white rounded-lg py-10'>
             {
                 loading && <Loader />
             }

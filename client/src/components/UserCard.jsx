@@ -57,13 +57,13 @@ const UserCard = ({ user, onExplore }) => {
     };
 
     return (
-        <div key={user?.id} className="flex items-center justify-between w-full">
+        <div key={user?.id} className="flex items-center justify-between w-full max-md:text-sm">
           {
             loading && <Loader />
           }
             <div className="flex items-center space-x-3">
                 <img
-                    src="/placeholder.svg?height=40&width=40"
+                    src={user?.pfpUrl}
                     alt="User Avatar"
                     className="w-10 h-10 rounded-full"
                 />
@@ -76,7 +76,7 @@ const UserCard = ({ user, onExplore }) => {
                 {user?.id !== userId && (
                     <FollowButton
                         userId={user?.id}
-                        onClick_={follow}
+                        onClick_={() => {setIsFollowing(!isFollowing); follow();}}
                         isFollowing={isFollowing}
                     />
                 )}

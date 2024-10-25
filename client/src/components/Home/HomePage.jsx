@@ -68,7 +68,7 @@ export default function HomePage() {
       <Nav />
 
       {/* Main Content */}
-      <main className="pt-20 pb-8 px-40 mx-auto">
+      <main className="pt-20 pb-8 px-32 mx-auto max-md:px-20 max-sm:px-10">
         <div className="flex flex-col lg:flex-row lg:space-x-6">
           {/* Left Sidebar */}
           <MostFollowed />
@@ -77,7 +77,7 @@ export default function HomePage() {
           <div className="lg:w-1/2 relative"> 
             {loading && <Loader />}
             {/* Tabs */}
-            <div className="flex mb-6 bg-white bg-opacity-5 rounded-lg">
+            <div className="flex mb-6 bg-white bg-opacity-5 rounded-lg max-md:rounded-md max-md:text-sm">
               <button
                 onClick={() => {setActiveTab('for-you'); setFollowingPosts([]); setForYouClicked((!forYouClicked))}}
                 className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'for-you' ? 'bg-blue-500 text-white' : 'hover:bg-white hover:bg-opacity-10'}`}

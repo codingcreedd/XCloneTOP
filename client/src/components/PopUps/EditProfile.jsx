@@ -85,7 +85,7 @@ export default function EditProfile({cancel, id}) {
   return (
     <div className="absolute top-0 left-0 right-0 bottom-0 backdrop-filter backdrop-blur-sm z-10 h-screen text-white flex items-center justify-center p-4">
       <div className="w-full max-w-lg bg-black py-10 px-10 rounded-xl border border-white">
-        <h1 className="text-3xl font-bold mb-8">Edit Profile</h1>
+        <h1 className="text-3xl font-bold mb-8 max-md:mb-4 max-md:text-xl">Edit Profile</h1>
         <form onSubmit={handleSubmit} className="relative space-y-6">
           {
             updateLoading && <Loader />
@@ -177,7 +177,7 @@ export default function EditProfile({cancel, id}) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-white text-black font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              className="px-4 py-2 max-md:px-2 max-md:py-1 max-md:text-sm bg-white text-black font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
               Save Changes
             </button>

@@ -95,6 +95,21 @@ export default function UserProfile() {
     fetchUser();
   }, [username]);
 
+  const formatDate = (dateString) => {
+      const date = new Date(dateString);
+
+      const options = {
+          year: 'numeric',
+          month: 'short', 
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true, 
+      };
+
+      return date.toLocaleString('en-US', options);
+  };
+
   const handlePostFetch = async (tab)  => {
     setTabLoading(true);
     try {
@@ -160,7 +175,7 @@ export default function UserProfile() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mt-6">
             <div className="text-gray-300">@{userProfile?.username}</div>
-            <div className="mt-2 text-sm text-gray-400">Joined {userProfile?.createdAt}</div>
+            <div className="mt-2 text-sm text-gray-400">Joined {formatDate(userProfile?.createdAt)}</div>
             <p className="mt-4 text-sm text-gray-300">
                 {userProfile?.bio}
             </p>

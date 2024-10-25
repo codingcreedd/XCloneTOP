@@ -81,7 +81,7 @@ const CreatePost = ({isReply, message, parentId, replies, setReplies}) => {
                       />
 
                     </div>
-                    <button type='submit' className="bg-blue-500 text-white px-4 py-1 rounded-full font-medium hover:bg-blue-600">Post</button>
+                    <button type='submit' className="bg-blue-500 text-white px-4 py-1 rounded-full max-md:px-2 max-md:text-sm font-medium max-md:rounded-lg hover:bg-blue-600">Post</button>
                   </div>
                 </div>
               </div>

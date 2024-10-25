@@ -140,16 +140,20 @@ export default function ChatRoom() {
             className="bg-white bg-opacity-10 text-white rounded-md p-2 hover:bg-opacity-20 transition-colors duration-200"
             aria-label="Attach image"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-          </button>
-          <input
+            <label htmlFor="message-image">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+              </svg>
+            </label>
+            <input
             type="file"
+            id='message-image'
             accept="image/*"
             onChange={e => {handleImageSelect(e)}}
-            className=""
+            className="hidden"
           />
+          </button>
+          
           <button
             type="submit"
             className="bg-white text-black rounded-md p-2 hover:bg-opacity-80 transition-colors duration-200"

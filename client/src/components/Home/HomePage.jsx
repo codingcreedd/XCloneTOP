@@ -93,7 +93,7 @@ export default function HomePage() {
             </div>
 
             {/* New Post Creation */}
-            <CreatePost />
+            <CreatePost isReply={false}/>
 
             {/* Posts */}
             {

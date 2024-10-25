@@ -28,7 +28,8 @@ router.get('/protected', verify, async (req, res) => {
             return res.status(404).json({
                 authenticated: false,
                 message: 'Could not find user',
-                status: 'failure'
+                status: 'failure',
+                user: null
             })
         }
 

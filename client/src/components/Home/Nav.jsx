@@ -16,13 +16,12 @@ const Nav = () => {
               <Link to={`/explore`} className="hover:text-gray-300">Explore</Link>
               <Link to={`/messages`} className="hover:text-gray-300">Messages</Link>
               <Link to={`/bookmarks`} className="hover:text-gray-300">Bookmarks</Link>
-              <Link to={`/${user?.username}/profile`} className="hover:text-gray-300">Profile</Link>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <img src="/placeholder.svg?height=32&width=32" alt="Profile" className="w-8 h-8 rounded-full" />
+              <Link to={`/${user?.username}/profile`} className="flex items-center space-x-2">
+                <img src={user?.pfpUrl} alt={`${user?.name?.charAt(0)}`} className="w-8 h-8 rounded-full" />
                 <span className="font-medium">{user.username}</span>
-              </div>
+              </Link>
             </div>
           </div>
         </div>

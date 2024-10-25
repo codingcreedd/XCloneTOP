@@ -3,12 +3,23 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const verify = require('../config/verify').verify;
 
+const multer = require('multer');
+const storage = multer.memoryStorage();
+
+const upload = multer({storage});
+
 // Create a post
-router.post('/create', verify, async (req, res) => {
+router.post('/create', verify, upload.single("image"), async (req, res) => {
     try {
         const userId = req.user.id;
-        const { description, isReply, parentId } = req.body;
-        console.log('ran create post')
+        let { description, isReply, parentId } = req.body;
+        const file = req.file;
+        console.log(isReply)
+
+        if(isReply === "false")
+            isReply = false;
+        else
+            isReply = true;
 
         if (!description) {
             return res.status(400).json({
@@ -17,14 +28,33 @@ router.post('/create', verify, async (req, res) => {
             });
         }
 
+        let image = null;
+
         let postData = {
             description,
-            isReply: !!isReply,
+            isReply: isReply,
             userId
         };
 
+        if(file){
+            const formData = new FormData();
+            formData.append("image", file.buffer.toString("base64"));
+
+            //upload to imageBB
+            const imageBBResponse = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`, {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await imageBBResponse.json();
+            if(result && result.data) {
+                image = result.data.url;
+                postData.imageurl = image;
+            }
+        }
+
         if (isReply && parentId) {
-            postData.parentId = parentId;
+            postData.parentId = Number(parentId);
         }
 
         const post = await prisma.post.create({
@@ -404,7 +434,7 @@ router.get('/:username/posts', verify, async (req, res) => {
                 ]
             },
             select: {
-                id: true, description: true, user: true, replies: {
+                id: true, description: true, user: true, imageurl: true, replies: {
                     select: {
                         likedUsers: {
                             select: {id: true}
@@ -466,7 +496,7 @@ router.get('/:user_id/bookmarks', verify, async (req, res) => {
                 }
             },
             select: {
-                id: true, description: true, user: true, replies: true, createdAt: true,
+                id: true, description: true, user: true, replies: true, createdAt: true, imageurl: true,
                 likedUsers: {
                     select: {id: true}
                 },
@@ -514,7 +544,7 @@ router.get('/:user_id/replies', verify, async (req, res) => {
                 }
             },
             select: {
-                id: true, description: true, user: true, replies: true, createdAt: true,
+                id: true, description: true, user: true, replies: true, createdAt: true, imageurl: true,
                 likedUsers: {
                     select: {id: true}
                 },
@@ -565,7 +595,7 @@ router.get('/:user_id/likes', verify, async (req, res) => {
                 }
             },
             select: {
-                id: true, description: true, user: true, replies: true, createdAt: true,
+                id: true, description: true, user: true, replies: true, createdAt: true, imageurl: true,
                 likedUsers: {
                     select: {id: true}
                 },
@@ -612,7 +642,7 @@ router.get('/search', verify, async (req, res) => {
                 }
             },
             select: {
-                id: true, description: true, user: true, replies: true, createdAt: true,
+                id: true, description: true, user: true, replies: true, createdAt: true, imageurl: true,
                 likedUsers: {
                     select: {id: true}
                 },

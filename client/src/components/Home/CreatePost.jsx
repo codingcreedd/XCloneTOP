@@ -7,6 +7,7 @@ const CreatePost = ({isReply, message, parentId, replies, setReplies}) => {
 
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const {setForYou, setFollowingPosts, forYou, followingPosts} = useContext(Context);
   
   const token = localStorage.getItem("token");
@@ -16,9 +17,21 @@ const CreatePost = ({isReply, message, parentId, replies, setReplies}) => {
     try { 
         if(description !== '' && description !== null) {
           setLoading(true);
-          await posts_api.post('/create', {
-            description, isReply: isReply || false, parentId: parentId || null
-          }, {headers: {Authorization: `Bearer ${token}`}})
+
+          const formData = new FormData();
+          formData.append("description", description);
+
+
+          if(parentId){
+            formData.append("parentId", parentId);
+          }
+
+          formData.append("isReply", isReply);
+
+          if(selectedImage)
+            formData.append("image", selectedImage);
+
+          await posts_api.post('/create', formData, {headers: {Authorization: `Bearer ${token}`}})
           .then(response => {
             setLoading(false);
             if(response.status === 201) {
@@ -43,7 +56,6 @@ const CreatePost = ({isReply, message, parentId, replies, setReplies}) => {
         loading && <Loader />
       }
               <div className="flex items-start space-x-4">
-                <img src="/placeholder.svg?height=40&width=40" alt="Your Profile" className="w-10 h-10 rounded-full" />
                 <div className="flex-grow">
                   <textarea
                     className="w-full bg-transparent border-b border-white border-opacity-20 resize-none focus:outline-none focus:border-opacity-50 placeholder-gray-500"
@@ -54,16 +66,20 @@ const CreatePost = ({isReply, message, parentId, replies, setReplies}) => {
                   ></textarea>
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex space-x-2">
-                      <button className="text-blue-400 hover:text-blue-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                      <button className="text-blue-400 hover:text-blue-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7.536 5.879a1 1 0 001.415 0 3 3 0 014.242 0 1 1 0 001.415-1.415 5 5 0 00-7.072 0 1 1 0 000 1.415z" clipRule="evenodd" />
-                        </svg>
-                      </button>
+                      <label htmlFor='image-post-upload' className="text-blue-400 hover:text-blue-300">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                          </svg>
+                      </label>
+
+                      <input
+                        id="image-post-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {setSelectedImage(e.target.files[0])}}
+                        className="hidden"
+                      />
+
                     </div>
                     <button type='submit' className="bg-blue-500 text-white px-4 py-1 rounded-full font-medium hover:bg-blue-600">Post</button>
                   </div>

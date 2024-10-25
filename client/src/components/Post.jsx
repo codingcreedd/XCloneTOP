@@ -117,7 +117,7 @@ const Post = ({post, postPage}) => {
             loading && <Loader />
         }
         <div className="flex items-start space-x-3">
-            <img src={post?.user?.pfpUrl} alt="User Profile" className="w-10 h-10 rounded-full" />
+            <img src={post?.user?.pfpUrl} alt={`${post?.user?.name?.charAt(0)}${post?.user?.name?.charAt(1)}`} className="w-10 h-10 rounded-full" />
             <div className="flex-grow">
                 <div className="flex items-center space-x-2">
                     <span className="font-semibold">{post?.user?.name}</span>
@@ -125,9 +125,7 @@ const Post = ({post, postPage}) => {
                     <span className="text-gray-500 text-sm">· {post?.createdAt}</span>
                 </div>
                 <p className="mt-2 break-words whitespace-normal max-h-40 overflow-hidden">{post.description}</p>
-                    {post % 2 === 0 && (
-                        <img src="/placeholder.svg?height=300&width=500" alt="Post Image" className="mt-3 rounded-lg w-full" />
-                    )}
+                <img src={post?.imageurl} className="mt-3 rounded-lg w-full" />
                 <div className="flex justify-between mt-4">
                     <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-400">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

@@ -102,7 +102,7 @@ export default function EditProfile({cancel, id}) {
                   Change
                 </label>
                 
-                    <input
+                  <input
                     id="avatar-upload"
                     type="file"
                     accept="image/*"

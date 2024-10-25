@@ -7,7 +7,7 @@ const Nav = () => {
     const {user} = useContext(Context);
 
   return (
-    <nav className="px-40 max-md:px-20 max-sm:px-5 fixed top-0 left-0 right-0 bg-black text-xl bg-opacity-80 backdrop-filter backdrop-blur-sm border-b border-white border-opacity-10 z-10">
+    <nav className="px-32 max-md:px-20 max-sm:px-5 fixed top-0 left-0 right-0 bg-black text-xl bg-opacity-80 backdrop-filter backdrop-blur-sm border-b border-white border-opacity-10 z-10">
         <div className="mx-auto px-4">
           <div className="flex items-center justify-between h-16">
           <a href="#" className="text-xl font-bold">BLIP</a>

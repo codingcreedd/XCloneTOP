@@ -4,7 +4,7 @@ const Modal = ({ isOpen, onClose, imageUrl }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 backdrop-blur-sm z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 backdrop-blur-sm z-50 overflow-scroll" onClick={onClose}>
             <div className="relative max-w-4xl w-full mx-4">
                 <img src={imageUrl} alt="Enlarged" className="w-full h-auto object-contain rounded-lg shadow-2xl" />
                 <button 

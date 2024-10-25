@@ -28,7 +28,7 @@ export default function UserProfile() {
 
   const token = localStorage.getItem("token");
 
-  const {userId} = useContext(Context);
+  const {userId, setAuthState} = useContext(Context);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -161,9 +161,14 @@ export default function UserProfile() {
                 <div className="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
                   {
                     userProfile?.id === userId && (
-                      <button onClick={() => {setEditProfile(true)}} type="button" className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Edit Profile
-                      </button>
+                      <div className='flex items-center gap-5 w-full'>
+                        <button onClick={() => {setEditProfile(true)}} type="button" className="inline-flex max-sm:w-[50%] justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                          Edit Profile
+                        </button>
+                        <button onClick={() => {localStorage.removeItem("token"); setAuthState(false);}} type="button" className="inline-flex max-sm:w-[50%] justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                          Logout
+                        </button>
+                      </div>
                     )
                   }
                 </div>

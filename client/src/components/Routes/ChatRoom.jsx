@@ -13,6 +13,8 @@ export default function ChatRoom() {
   const [chatUser, setChatUser] = useState('');
   const [chatId, setChatId] = useState(null);
   const [clientId, setClientId] = useState(null);
+
+  const [selectedImage, setSelectedImage] = useState(null);
     
   const token = localStorage.getItem("token");
 
@@ -23,26 +25,39 @@ export default function ChatRoom() {
     e.preventDefault();
     try {
       setLoading(true);
-      await messages_api.post('/send', {description: message, chatId}, {
-        headers: {Authorization: `Bearer ${token}`}
+  
+      const formData = new FormData();
+      formData.append("description", message);
+      formData.append("chatId", chatId);
+  
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+  
+      await messages_api.post('/send', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
       }).then(response => {
-        if(response.status === 201) {
+        if (response.status === 201) {
           setLoading(false);
           setMessages([...messages, response.data.message]);
           setMessage('');
         }
-      })
-    } catch(err) {
+      });
+    } catch (err) {
       setLoading(false);
       console.error(err);
     }
-  }
+  };
+  
 
-  // const handleImageSelect = (e) => {
-  //   if (e.target.files && e.target.files[0]) {
-  //     setSelectedImage(e.target.files[0])
-  //   }
-  // }
+  const handleImageSelect = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0])
+    }
+  }
 
   useEffect(() => {
     const fetchChat = async () => {
@@ -70,7 +85,7 @@ export default function ChatRoom() {
   }, [user_id])
 
   return (
-    <div className="flex flex-col h-screen bg-black text-white font-sans">
+    <div className="flex relative flex-col h-screen bg-black text-white font-sans">
       {/* Navigation Bar */}
       <nav className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg px-4 py-3 flex items-center border-b border-white border-opacity-20">
         <button 
@@ -99,7 +114,7 @@ export default function ChatRoom() {
         }
         {
           messages && (
-            <div>
+            <div className='reltive'>
                 {messages.map((msg) => (
                   <div className='mb-3' key={msg.id}>
                     <Message msg={msg} clientId={clientId}/>
@@ -132,7 +147,8 @@ export default function ChatRoom() {
           <input
             type="file"
             accept="image/*"
-            className="hidden"
+            onChange={e => {handleImageSelect(e)}}
+            className=""
           />
           <button
             type="submit"

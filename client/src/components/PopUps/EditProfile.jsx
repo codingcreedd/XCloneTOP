@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import users_api from '../../apis/user';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../PopUps/Loader';
+import images_api from '../../apis/imageUpload';
 
-export default function EditProfile({cancel}) {
+export default function EditProfile({cancel, id}) {
   const [name, setName] = useState(null)
   const [username, setUsername] = useState(null)
   const [bio, setBio] = useState(null)
@@ -12,16 +13,17 @@ export default function EditProfile({cancel}) {
   const [newName, setNewName] = useState(null)
   const [newUsername, setNewUsername] = useState(null)
   const [newBio, setNewBio] = useState(null)
-  const [newAvatar, setNewAvatar] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  
 
   const [loading, setLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [pfpUrl, setPfpUrl] = useState(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
   const handleSubmit = async (e) => {
-    console.log(`NAME: ${newName} + USERNAME: ${newUsername} + BIO: ${newBio}`)
     e.preventDefault()
     try {
         setUpdateLoading(true);
@@ -38,14 +40,22 @@ export default function EditProfile({cancel}) {
                 setUpdateLoading(false);
                 navigate(0);
             }
-        })
+        });
+
+        if(selectedFile) {
+          await images_api.post('/upload/pfp', {id, image: selectedFile}, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            } 
+          }).then(response => {
+            if(response.status === 201) {
+              setPfpUrl(response.data.pfpUrl);
+            }
+          })
+        }
     } catch(err) {
       console.error(err);
     }
-  }
-
-  const handleAvatarChange = (e) => {
-    
   }
 
   useEffect(() => {
@@ -85,7 +95,7 @@ export default function EditProfile({cancel}) {
           <div className="flex flex-col items-center">
             <div className="relative group">
               <img
-                src={avatar}
+                src={pfpUrl !== null ? pfpUrl : avatar}
                 alt="Profile"
                 className="w-32 h-32 rounded-full object-cover border-2 border-gray-700"
               />
@@ -93,17 +103,16 @@ export default function EditProfile({cancel}) {
                 <label htmlFor="avatar-upload" className="cursor-pointer text-sm font-medium">
                   Change
                 </label>
-                {
-                  avatar !== null && (
+                
                     <input
-                      id="avatar-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                      className="hidden"
-                    />
-                  )
-                }
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {setSelectedFile(e.target.files[0])}}
+                    className="hidden"
+                  />
+                  
+                
               </div>
             </div>
           </div>

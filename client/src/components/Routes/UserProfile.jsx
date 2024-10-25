@@ -186,7 +186,7 @@ export default function UserProfile() {
           </div>
 
           {
-            editProfile ? (<EditProfile cancel={() => {setEditProfile(false)}}/>) : (
+            editProfile ? (<EditProfile cancel={() => {setEditProfile(false)}} id={userProfile?.id}/>) : (
               <>
                 {/* Tabs */}
                 <div className="mt-6 border-b border-gray-700">

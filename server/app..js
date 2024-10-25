@@ -5,6 +5,7 @@ const app = express();
 
 const cors = require('cors');
 
+
 //middlewares
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -19,10 +20,12 @@ app.use(express.urlencoded({extended: true}));
 const user = require('./routes/user');
 const post = require('./routes/post');
 const message = require('./routes/message');
+const imageUpload = require('./routes/imageUpload');
 
 app.use('/user', user);
 app.use('/post', post);
 app.use('/message', message);
+app.use('/image', imageUpload);
 
 const port = process.env.PORT;
 app.listen(port, () => {

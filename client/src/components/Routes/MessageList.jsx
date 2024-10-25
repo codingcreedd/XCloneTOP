@@ -63,7 +63,7 @@ export default function MessageList() {
                 users.length > 0 ? (
                     <>
                         {users.map((user) => (
-                            <div key={user} className={`bg-white bg-opacity-5 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-10 ${user?.id === userId && 'hidden'}`}>
+                            <div key={user.id} className={`bg-white bg-opacity-5 backdrop-filter backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-10 ${user?.id === userId && 'hidden'}`}>
                                 <div className="flex items-center space-x-4">
                                 <img src="/placeholder.svg?height=64&width=64" alt="User Avatar" className="w-16 h-16 rounded-full" />
                                 <div className="flex-grow">

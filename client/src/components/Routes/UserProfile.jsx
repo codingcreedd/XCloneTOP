@@ -137,7 +137,7 @@ export default function UserProfile() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="-mt-12 sm:-mt-16 sm:flex sm:items-end sm:space-x-5">
               <div className="flex">
-                <img src="/placeholder.svg?height=128&width=128" alt="Profile" className="h-24 w-24 rounded-full ring-4 ring-black sm:h-32 sm:w-32" />
+                <img src={userProfile?.pfpUrl} alt="Profile" className="h-24 w-24 rounded-full ring-4 ring-black sm:h-32 sm:w-32" />
               </div>
               <div className="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
                 <div className="sm:hidden md:block mt-6 min-w-0 flex-1">

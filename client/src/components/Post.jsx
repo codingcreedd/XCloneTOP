@@ -117,7 +117,7 @@ const Post = ({post, postPage}) => {
             loading && <Loader />
         }
         <div className="flex items-start space-x-3">
-            <img src="/placeholder.svg?height=40&width=40" alt="User Profile" className="w-10 h-10 rounded-full" />
+            <img src={post?.user?.pfpUrl} alt="User Profile" className="w-10 h-10 rounded-full" />
             <div className="flex-grow">
                 <div className="flex items-center space-x-2">
                     <span className="font-semibold">{post?.user?.name}</span>

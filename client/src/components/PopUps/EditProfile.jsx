@@ -27,13 +27,23 @@ export default function EditProfile({cancel, id}) {
     e.preventDefault()
     try {
         setUpdateLoading(true);
-        await users_api.put('/update-user-info', {
-            newName,
-            newUsername,
-            newBio
-        }, {
+        const formData = new FormData();
+        if(newName !== null)
+          formData.append("newName", newName); 
+
+        if(newUsername !== null)
+          formData.append("newUsername", newUsername);
+
+        if(newBio !== null)
+          formData.append("newBio", newBio);
+
+        if(selectedFile)
+          formData.append("image", selectedFile);
+
+        await users_api.put('/update-user-info', formData, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data"
             }
         }).then(response => {
             if(response.status === 201) {
@@ -41,18 +51,6 @@ export default function EditProfile({cancel, id}) {
                 navigate(0);
             }
         });
-
-        if(selectedFile) {
-          await images_api.post('/upload/pfp', {id, image: selectedFile}, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            } 
-          }).then(response => {
-            if(response.status === 201) {
-              setPfpUrl(response.data.pfpUrl);
-            }
-          })
-        }
     } catch(err) {
       console.error(err);
     }

@@ -5,6 +5,11 @@ const verify = require('../config/verify').verify;
 const bcrypt = require('bcrypt');
 const generateToken = require('../Utils/jwtToken');
 
+const multer = require('multer');
+
+const storage = multer.memoryStorage();
+const upload = multer({storage});
+
 const numberRegex = /\d/;
 const uppercaseRegex = /[A-Z]/;
 const specialCharacterRegex = /[@$!%*?&]/;
@@ -214,12 +219,46 @@ router.get('/edit-profile-info', verify, async (req, res) => {
     }
 })
 
-router.put('/update-user-info', verify, async (req, res) => {
+router.put('/update-user-info', verify, upload.single("image"), async (req, res) => {
     try {
         const userId = req.user.id;
         const {newName, newUsername, newBio} = req.body;
 
-        if(newName) {
+        const file = req.file;
+
+        if(file) {
+            const formData = new FormData();
+            formData.append("image", file.buffer.toString("base64"));
+
+            //upload to imageBB
+            const imageBBResponse = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`, {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await imageBBResponse.json();
+
+            if(result && result.data){
+                let pfpUrl = result.data.url;
+                const updatePfp = await prisma.user.update({
+                    where: {id: userId},
+                    data: {
+                        pfpUrl
+                    }
+                });
+
+                if(!updatePfp){
+                    return res.status(400).json({
+                        message: 'Update profile picture failed',
+                        status: 'failure'
+                    })
+                }
+            }
+
+        }
+
+
+        if(newName !== null) {
             const updateName = await prisma.user.update({
                 where: {
                     id: userId
@@ -237,7 +276,7 @@ router.put('/update-user-info', verify, async (req, res) => {
             }
         }
         
-        if(newUsername) {
+        if(newUsername !== null) {
             const udpateUsername = await prisma.user.update({
                 where: {
                     id: userId
@@ -255,7 +294,7 @@ router.put('/update-user-info', verify, async (req, res) => {
             }
         }
 
-        if(newBio) {
+        if(newBio !== null) {
             const updateBio = await prisma.user.update({
                 where: {
                     id: userId

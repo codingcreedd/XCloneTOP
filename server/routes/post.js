@@ -240,7 +240,8 @@ router.get('/for-you', verify, async (req, res) => {
                     user: {
                         select: {
                             username: true,
-                            name: true
+                            name: true,
+                            pfpUrl: true
                         }
                     },
                     likedUsers: {
@@ -303,7 +304,8 @@ router.get('/for-you', verify, async (req, res) => {
                                     user: {
                                         select: {
                                             username: true,
-                                            name: true
+                                            name: true,
+                                            pfpUrl: true
                                         }
                                     },
                                     likedUsers: {
@@ -326,7 +328,8 @@ router.get('/for-you', verify, async (req, res) => {
                                     user: {
                                         select: {
                                             username: true,
-                                            name: true
+                                            name: true,
+                                            pfpUrl: true
                                         }
                                     },
                                     likedUsers: {
